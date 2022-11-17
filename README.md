@@ -52,6 +52,7 @@ conda install -c conda-forge dask-jobqueue
 conda install -c anaconda bokeh 
 conda install -c conda-forge 'fsspec>=0.3.3'
 conda install dask
+conda install -c anaconda 'openssl==1.1.1s'
 conda install -c conda-forge parsl
 ```
 
@@ -370,6 +371,7 @@ options:
                         input coffea files (str), splitted different files with ','. Wildcard option * available as well.
    --autorebin AUTOREBIN
                         Rebin the plotting variables by merging N bins in case the current binning is too fine for you 
+   --xlabel XLABEL      rename the label for x-axis
 ```
 - data/data, MC/MC comparisons
 
@@ -400,6 +402,7 @@ options:
                         short names for compared datasets for legend, split by ','
    --autorebin AUTOREBIN
                         Rebin the plotting variables by merging N bins in case the current binning is too fine for you 
+   --xlabel XLABEL      rename the label for x-axis
 ```
 
 
