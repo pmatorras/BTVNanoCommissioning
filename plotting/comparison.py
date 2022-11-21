@@ -328,7 +328,10 @@ for index, discr in enumerate(var_set):
                 yerr=True,
                 ax=ax,
             )
+        print ("ic things ref", collated[args.ref][discr][allaxis]) 
+
         for i, c in enumerate(args.compared.split(",")):
+            print ("ic things", i,c, collated[c][discr][allaxis]) 
             plotratio(
                 collated[c][discr][allaxis],
                 collated[args.ref][discr][allaxis],
@@ -348,15 +351,19 @@ for index, discr in enumerate(var_set):
         ax.add_artist(at)
         hep.mpl_magic(ax=ax)
         ax.set_ylim(bottom=0)
-        logext = ""
+        extnm = ""
+        if args.norm:
+            extnm  = "_norm"
         if args.log:
             ax.set_yscale("log")
-            logext = "_log"
+            extnm += "_log"
             ax.set_ylim(bottom=0.1)
             hep.mpl_magic(ax=ax)
+        fignm = f"plot/BTV/{args.phase}_{args.ext}_{time}/compare_{args.phase}_inclusive{discr}{extnm}"
+        print("creating:", fignm)
         fig.savefig(
-            f"plot/BTV/{args.phase}_{args.ext}_{time}/compare_{args.phase}_inclusive{discr}{logext}.pdf"
+            f"plot/BTV/{args.phase}_{args.ext}_{time}/compare_{args.phase}_inclusive{discr}{extnm}.pdf"
         )
         fig.savefig(
-            f"plot/BTV/{args.phase}_{args.ext}_{time}/compare_{args.phase}_inclusive{discr}{logext}.png"
+            f"plot/BTV/{args.phase}_{args.ext}_{time}/compare_{args.phase}_inclusive{discr}{extnm}.png"
         )
