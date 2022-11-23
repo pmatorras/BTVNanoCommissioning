@@ -109,6 +109,8 @@ else:
     mergemap["mc"] = mclist
     mergemap["data"] = datalist
 collated = collate(output, mergemap)
+#print(collated["data"])
+#exit()
 if "Wc" in arg.phase:
     input_txt = "W+c"
 elif "DY" in arg.phase:
@@ -427,3 +429,4 @@ for index, discr in enumerate(var_set):
         fig.savefig(
             f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png"
         )
+    print("creating:", f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png")

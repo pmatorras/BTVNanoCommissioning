@@ -109,7 +109,7 @@ class NanoProcessor(processor.ProcessorABC):
             (ak.num(pos_dilep.pt) >= 1)
             & (ak.num(neg_dilep.pt) >= 1)
             & (ak.num(dilep_mu.charge) >= 2)
-            & (ak.num(dilep_ele.charge) < 2)
+            & (ak.num(dilep_ele.charge) == 0)
         )
         pos_dilep = ak.pad_none(pos_dilep, 1, axis=1)
         neg_dilep = ak.pad_none(neg_dilep, 1, axis=1)

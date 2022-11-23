@@ -377,10 +377,10 @@ for index, discr in enumerate(var_set):
             normtext = "_norm"
         if args.log:
             ax.set_yscale("log")
-            extnm += "_log"
+            logext += "_log"
             ax.set_ylim(bottom=0.1)
             hep.mpl_magic(ax=ax)
-        fignm = f"plot/BTV/{args.phase}_{args.ext}_{time}/compare_{args.phase}_inclusive{discr}{extnm}"
+        fignm = f"plot/BTV/{args.phase}_{args.ext}_{time}/compare_{args.phase}_inclusive{discr}{logext}{normtext}"
         print("creating:", fignm)
         fig.savefig(
             f"plot/BTV/{args.phase}_{args.ext}_{time}/compare_{args.phase}_inclusive{discr}{logext}{normtext}.pdf"
