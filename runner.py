@@ -78,6 +78,7 @@ def get_main_parser():
         help="Dataset campaign, change the corresponding correction files",
     )
     parser.add_argument("--isCorr", action="store_true", help="Run with SFs")
+    parser.add_argument("--roCorr", action="store_true", help="Run with Rochester corrections")
     parser.add_argument(
         "--isJERC", action="store_true", help="JER/JEC implemented to jet"
     )
@@ -268,8 +269,9 @@ if __name__ == "__main__":
     if "ttcom" == args.workflow or "validation" == args.workflow:
         processor_instance = workflows[args.workflow](args.year, args.campaign)
     else:
+        print ("im here, no?", workflows[args.workflow], args.year, args.campaign, args.isCorr, args.isJERC, args.roCorr)
         processor_instance = workflows[args.workflow](
-            args.year, args.campaign, args.isCorr, args.isJERC
+            args.year, args.campaign, args.isCorr, args.isJERC, args.roCorr
         )
 
     if args.executor not in ["futures", "iterative", "dask/lpc", "dask/casa"]:

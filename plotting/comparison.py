@@ -144,13 +144,39 @@ if args.shortcomp == "":
 if args.variable == "all":
     var_set = collated[args.ref].keys()
 elif "*" in args.variable:
-    var_set = [
-        var
-        for var in collated[args.ref].keys()
-        if args.variable.replace("*", "") in var
-    ]
+    var_set = []
+    print(len(args.variable.split('*')), "\n")
+    for var in collated[args.ref].keys():
+        argsplit = args.variable.split('*')
+        ishere = False 
+
+        
+
+        #if len(argsplit)>2:
+        #    if len(argsplit[-1]) >0:
+        #        for arg_i in argsplit:
+                    
+        #            print("argi", arg_i,var, bool(arg_i in var))
+        #            if arg_i not in var: break 
+        #            else: 
+        #                var = var.split(arg_i)[1]
+        #                print(var)
+                        
+
+        #exit()
+        if len(argsplit[-1]) == 0 and argsplit[0] in var: var_set.append(var) 
+        elif len(argsplit)>0 and  len(argsplit[-1]) >0:
+            if argsplit[0] in var and argsplit[1] in var.split(argsplit[0])[1]: var_set.append(var)
+        #print(len(args.variable.split('*')), args.variable.split('*'))
+        #if args.variable.replace("*", "") in var: var_set.append(var)
+    #elif len(args.variable.split('*')[-1] 
+    
 else:
     var_set = args.variable.split(",")
+#print ("var", var_set)
+print(len(args.variable.split('*')), args.variable.split('*'))
+
+#exit()
 for index, discr in enumerate(var_set):
 
     allaxis = {}
@@ -391,15 +417,10 @@ for index, discr in enumerate(var_set):
             logext += "_log"
             ax.set_ylim(bottom=0.1)
             hep.mpl_magic(ax=ax)
-<<<<<<< HEAD
-        fignm = f"plot/BTV/{args.phase}_{args.ext}_{time}/compare_{args.phase}_inclusive{discr}{logext}{normtext}"
-        print("creating:", fignm)
-=======
         print(
             "creating:",
             f"plot/BTV/{args.phase}_{args.ext}_{time}/compare_{args.phase}_inclusive{discr}{logext}{normtext}.png",
         )
->>>>>>> upstream/master
         fig.savefig(
             f"plot/BTV/{args.phase}_{args.ext}_{time}/compare_{args.phase}_inclusive{discr}{logext}{normtext}.pdf"
         )

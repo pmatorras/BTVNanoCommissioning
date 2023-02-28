@@ -134,6 +134,7 @@ if (
 ):
     nj = 1
 
+#print("all possible variables", collated["mc"].keys())
 if arg.variable == "all":
     var_set = collated["mc"].keys()
 elif "*" in arg.variable:
@@ -143,6 +144,9 @@ elif "*" in arg.variable:
 else:
     var_set = arg.variable.split(",")
 
+
+print("plots to do:",var_set)
+#exit()
 for index, discr in enumerate(var_set):
     if "sumw" == discr:
         continue
@@ -423,10 +427,10 @@ for index, discr in enumerate(var_set):
     name = "all"
     hep.mpl_magic(ax=ax)
     if arg.log:
-        print(
-            "creating:",
-            f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png",
-        )
+        #print(
+        #    "creating:",
+        #    f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png",
+        #)
         ax.set_yscale("log")
         name = "log"
         ax.set_ylim(bottom=0.1)
@@ -438,10 +442,10 @@ for index, discr in enumerate(var_set):
             f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png"
         )
     else:
-        print(
-            "creating:",
-            f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png",
-        )
+        #print(
+        #    "creating:",
+        #    f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png",
+        #)
         fig.savefig(
             f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.pdf"
         )

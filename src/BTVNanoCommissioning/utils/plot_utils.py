@@ -345,11 +345,8 @@ def autoranger(hist):
         if val[i] != 0:
             maxs = i + 1
             break
-<<<<<<< HEAD
     if mins == -1:
         mins = 0
     #if maxs == len(val):
     #    maxs = maxs - 1
-=======
->>>>>>> upstream/master
     return axis[mins], axis[maxs]

@@ -11,20 +11,22 @@ from BTVNanoCommissioning.utils.correction import (
     load_BTV,
     load_jmefactory,
 )
+from BTVNanoCommissioning.utils.testRC2 import getRCFile, applyRC
 from BTVNanoCommissioning.utils.AK4_parameters import correction_config
 from BTVNanoCommissioning.helpers.func import flatten, update
 from BTVNanoCommissioning.helpers.update_branch import missing_branch, add_jec
 from BTVNanoCommissioning.helpers.cTagSFReader import getSF
 from BTVNanoCommissioning.utils.histogrammer import histogrammer
 from BTVNanoCommissioning.utils.selection import jet_id, mu_idiso, ele_mvatightid
-
+import sys
 
 class NanoProcessor(processor.ProcessorABC):
-    def __init__(self, year="2017", campaign="Rereco17_94X", isCorr=True, isJERC=False):
+    def __init__(self, year="2017", campaign="Rereco17_94X", isCorr=True, isJERC=False, roCorr=False):
         self._year = year
         self._campaign = campaign
         self.isJERC = isJERC
         self.isCorr = isCorr
+        self.roCorr = roCorr
         self.lumiMask = load_lumi(correction_config[self._campaign]["lumiMask"])
 
         ## Load corrections
@@ -47,6 +49,11 @@ class NanoProcessor(processor.ProcessorABC):
                     self._campaign, correction_config[self._campaign]["PU"]
                 )
 
+        if roCorr:
+            print("im doing rocooricos")
+            rcFilename = getRCFile(self,'2022')
+            print(rcFilename)
+            #sys.exit()
         if isJERC:
             self._jet_factory = load_jmefactory(
                 self._campaign, correction_config[self._campaign]["JME"]
@@ -65,6 +72,7 @@ class NanoProcessor(processor.ProcessorABC):
         output = self.make_output()
         dataset = events.metadata["dataset"]
         isRealData = not hasattr(events, "genWeight")
+        self.isRealData = isRealData
         events = missing_branch(events)
         weights = Weights(len(events), storeIndividual=True)
         if self.isJERC:
@@ -96,6 +104,8 @@ class NanoProcessor(processor.ProcessorABC):
         for t in trig_arrs:
             req_trig = req_trig | t
 
+        if self.CorrectingRC == True:
+            events.Muon = applyRC(self,events)
         ## Muon cuts
         dilep_mu = events.Muon[(events.Muon.pt > 12) & mu_idiso(events, self._campaign)]
         ## Electron cuts
@@ -202,6 +212,35 @@ class NanoProcessor(processor.ProcessorABC):
                         1.0,
                     ),
                 )
+        '''
+        if self.CorrectingRC == True:
+            weights.add(
+                "lep1rocorr",
+                np.where(
+                    event_level,
+                    applyRC(
+                        self,
+                        ak.firsts(neg_dilep),
+                    ),
+                    1.0,
+                ),
+            )
+            weights.add(
+                "lep2rocorr",
+                np.where(
+                    event_level,
+                    applyRC(
+                        self,
+                        ak.firsts(neg_dilep),
+                    ),
+                    1.0,
+                ),
+            )
+
+            print("im here")
+        '''
+        print("out and go")
+        #sys.exit()
         if isRealData:
             genflavor = ak.zeros_like(sjets.pt)
         else:
