@@ -178,7 +178,6 @@ print(len(args.variable.split('*')), args.variable.split('*'))
 
 #exit()
 for index, discr in enumerate(var_set):
-
     allaxis = {}
     if "flav" in collated[args.ref][discr].axes.name:
         allaxis["flav"] = sum
