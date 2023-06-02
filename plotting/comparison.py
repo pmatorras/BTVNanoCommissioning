@@ -108,6 +108,7 @@ else:
             comparelist.extend([m for m in output[f].keys() if c == m])
         mergemap[c] = comparelist
 collated = collate(output, mergemap)
+print ("collated", collated)
 ### style settings
 if "Run" in args.ref:
     hist_type = "errorbar"
