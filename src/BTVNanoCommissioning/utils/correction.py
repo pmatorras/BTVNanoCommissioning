@@ -175,6 +175,9 @@ def load_SF(campaign):
 
 def load_lumi(campaign):
     _lumi_path = "BTVNanoCommissioning.data.lumiMasks"
+    print("gogogo", _lumi_path, campaign)
+    print(type(correction_config), correction_config[campaign])#.keys())
+    print(correction_config[campaign]["lumiMask"])
     with importlib.resources.path(
         _lumi_path, correction_config[campaign]["lumiMask"]
     ) as filename:

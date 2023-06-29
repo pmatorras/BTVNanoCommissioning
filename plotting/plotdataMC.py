@@ -38,6 +38,7 @@ parser.add_argument(
         "ectag_ttsemilep_sf",
         "ectag_ttdilep_sf",
         "emctag_ttdilep_sf",
+        "QCDmuen"
     ],
     dest="phase",
     help="which phase space",
@@ -121,12 +122,8 @@ else:
     mergemap["mc"] = mclist
     mergemap["data"] = datalist
 collated = collate(output, mergemap)
-<<<<<<< HEAD
-#print(collated["data"])
-#exit()
-=======
+
 ### input text settings
->>>>>>> upstream/master
 if "Wc" in arg.phase:
     input_txt = "W+c"
     if arg.splitOSSS == 1:
@@ -143,16 +140,14 @@ elif "semilep" in arg.phase:
 elif "dilep" in arg.phase:
     input_txt = r"t$\bar{t}$ dileptonic"
     nj = 2
+elif "QCDmuen" in arg.phase:
+    input_txt = r"QCD muon-enriched"
 if (
     "njet" in arg.variable.split(",")
     or "nbjet" in arg.variable.split(",")
     or "mu" in arg.variable.split(",")
 ):
     nj = 1
-<<<<<<< HEAD
-
-#print("all possible variables", collated["mc"].keys())
-=======
 if "emctag" in arg.phase:
     input_txt = input_txt + " (e$\mu$)"
 elif "ectag" in arg.phase:
@@ -163,7 +158,6 @@ else:
     input_txt = input_txt + " ($\mu$)"
 if "ctag" in arg.phase and "DY" not in arg.phase:
     input_txt = input_txt + "\nw/ soft-$\mu$"
->>>>>>> upstream/master
 if arg.variable == "all":
     var_set = collated["mc"].keys()
 elif "*" in arg.variable:
@@ -176,6 +170,7 @@ else:
 
 print("plots to do:",var_set)
 #exit()
+print(collated)
 for index, discr in enumerate(var_set):
     if "sumw" == discr:
         continue
@@ -468,6 +463,7 @@ for index, discr in enumerate(var_set):
     if arg.norm:
         scale = "_norm"
     name = "all"
+    rcnm = '_RC' if '_RC' in arg.input else ''
     hep.mpl_magic(ax=ax)
     if arg.log:
         #print(
@@ -478,21 +474,26 @@ for index, discr in enumerate(var_set):
         name = "log"
         ax.set_ylim(bottom=0.1)
         hep.mpl_magic(ax=ax)
-        fig.savefig(
-            f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.pdf"
-        )
-        fig.savefig(
-            f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png"
-        )
-    else:
+        #fig.savefig(
+        #    f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.pdf"
+        #)
+        #fig.savefig(
+        #    f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png"
+        #)
+    #else:
         #print(
         #    "creating:",
         #    f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png",
         #)
-        fig.savefig(
-            f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.pdf"
-        )
-        fig.savefig(
-            f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png"
-        )
-    print("creating:", f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png")
+        #fig.savefig(
+        #    f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.pdf"
+        #)
+        #fig.savefig(
+        #    f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png"
+        #)
+    
+    filenm = f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}{rcnm}"
+    print("creating:", filenm + ".png")
+    fig.savefig(filenm + ".pdf")
+    fig.savefig(filenm + ".png")
+   

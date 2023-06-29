@@ -42,6 +42,9 @@ from BTVNanoCommissioning.workflows.ctag_ettsemilep_valid_sf import (
 from BTVNanoCommissioning.workflows.ctag_semileptt_valid_sf import (
     NanoProcessor as CTAGSemilepttValidSFProcessor,
 )
+from BTVNanoCommissioning.workflows.QCDmuEn_valid_sf import (
+    NanoProcessor as QCDmuenValidSFProcessor,
+)
 
 # FIXME - make names more systematic?
 workflows = {}
@@ -56,6 +59,7 @@ workflows["ctag_ttdilep_sf"] = CTAGDilepttValidSFProcessor
 workflows["ectag_ttdilep_sf"] = CTAGEDilepttValidSFProcessor
 workflows["ctag_ttsemilep_sf"] = CTAGSemilepttValidSFProcessor
 workflows["ectag_ttsemilep_sf"] = CTAGETTSemilepValidSFProcessor
+workflows["QCDmuen"] = QCDmuenValidSFProcessor
 
 
 # W+c

@@ -86,11 +86,8 @@ def get_main_parser():
         help="Dataset campaign, change the corresponding correction files",
     )
     parser.add_argument("--isCorr", action="store_true", help="Run with SFs")
-<<<<<<< HEAD
     parser.add_argument("--roCorr", action="store_true", help="Run with Rochester corrections")
-=======
     parser.add_argument("--isSyst", action="store_true", help="Run with systematics")
->>>>>>> upstream/master
     parser.add_argument(
         "--isJERC", action="store_true", help="JER/JEC implemented to jet"
     )
@@ -207,13 +204,11 @@ def get_main_parser():
 if __name__ == "__main__":
     parser = get_main_parser()
     args = parser.parse_args()
-    print("Running with the following options:")
-    print(args)
     if args.output == parser.get_default("output"):
         index = args.samplejson.rfind("/") + 1
+        rocorrnm    ='_RC' if args.roCorr else ''
         sample_json = args.samplejson[index:]
-        args.output = f'hists_{args.workflow}_{(sample_json).rstrip(".json")}.coffea'
-
+        args.output = f'hists_{args.workflow}_{(sample_json).rstrip(".json")}{rocorrnm}.coffea'
     # load dataset
     with open(args.samplejson) as f:
         sample_dict = json.load(f)
@@ -237,7 +232,7 @@ if __name__ == "__main__":
             sample_dict = dict([(args.only, sample_dict[args.only])])
         if "*" in args.only:  # wildcard for datasets
             _new_dict = {}
-            print("Will only proces the following datasets:")
+            print("Will only process the following datasets:")
             for k, v in sample_dict.items():
                 if k.lstrip("/").startswith(args.only.rstrip("*")):
                     print("    ", k)
@@ -281,13 +276,9 @@ if __name__ == "__main__":
     if "ttcom" == args.workflow or "validation" == args.workflow:
         processor_instance = workflows[args.workflow](args.year, args.campaign)
     else:
-        print ("im here, no?", workflows[args.workflow], args.year, args.campaign, args.isCorr, args.isJERC, args.roCorr)
+        print ("im here, no?", workflows[args.workflow], type(workflows[args.workflow]), args.year, args.campaign, args.isCorr, args.isJERC, args.roCorr)
         processor_instance = workflows[args.workflow](
-<<<<<<< HEAD
-            args.year, args.campaign, args.isCorr, args.isJERC, args.roCorr
-=======
-            args.year, args.campaign, args.isCorr, args.isJERC, args.isSyst
->>>>>>> upstream/master
+            args.year, args.campaign, args.isCorr, args.isJERC, args.isSyst, args.roCorr
         )
 
     if args.executor not in ["futures", "iterative", "dask/lpc", "dask/casa"]:

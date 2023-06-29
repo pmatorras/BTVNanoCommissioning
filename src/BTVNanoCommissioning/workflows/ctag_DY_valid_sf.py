@@ -11,24 +11,15 @@ from BTVNanoCommissioning.utils.correction import (
     btagSFs,
     load_jmefactory,
 )
-<<<<<<< HEAD
 from BTVNanoCommissioning.utils.testRC2 import getRCFile, applyRC
 from BTVNanoCommissioning.utils.AK4_parameters import correction_config
 from BTVNanoCommissioning.helpers.func import flatten, update
-=======
-
-from BTVNanoCommissioning.helpers.func import flatten
->>>>>>> upstream/master
 from BTVNanoCommissioning.helpers.update_branch import missing_branch, add_jec
-
 from BTVNanoCommissioning.utils.histogrammer import histogrammer
 from BTVNanoCommissioning.utils.selection import jet_id, mu_idiso, ele_mvatightid
 import sys
 
 class NanoProcessor(processor.ProcessorABC):
-<<<<<<< HEAD
-    def __init__(self, year="2017", campaign="Rereco17_94X", isCorr=True, isJERC=False, roCorr=False):
-=======
     def __init__(
         self,
         year="2017",
@@ -36,15 +27,18 @@ class NanoProcessor(processor.ProcessorABC):
         isCorr=True,
         isJERC=False,
         isSyst=False,
+        roCorr=False        
     ):
->>>>>>> upstream/master
         self._year = year
         self._campaign = campaign
-        self.isJERC = isJERC
         self.isCorr = isCorr
-<<<<<<< HEAD
+        self.isJERC = isJERC
+        self.isSyst = isSyst
         self.roCorr = roCorr
-        self.lumiMask = load_lumi(correction_config[self._campaign]["lumiMask"])
+        #print("which campaign", self._campaign, correction_config[self._campaign]["lumiMask"])
+        #sys.exit(0)
+
+        self.lumiMask = load_lumi(campaign)#correction_config[self._campaign]["lumiMask"])
 
         ## Load corrections
         if isCorr:
@@ -66,19 +60,17 @@ class NanoProcessor(processor.ProcessorABC):
                     self._campaign, correction_config[self._campaign]["PU"]
                 )
 
-        if roCorr:
+        if self.roCorr:
             print("im doing rocooricos")
             rcFilename = getRCFile(self,'2022')
             print(rcFilename)
             #sys.exit()
-=======
         self.isSyst = isSyst
         self.lumiMask = load_lumi(self._campaign)
 
         ## Load corrections
         if isCorr:
             self.SF_map = load_SF(self._campaign)
->>>>>>> upstream/master
         if isJERC:
             self._jet_factory = load_jmefactory(self._campaign)
         _hist_event_dict = histogrammer("ctag_DY_sf")
@@ -127,7 +119,8 @@ class NanoProcessor(processor.ProcessorABC):
         for t in trig_arrs:
             req_trig = req_trig | t
 
-        if self.CorrectingRC == True:
+        if self.roCorr:
+            print("Applying rochester corrections")
             events.Muon = applyRC(self,events)
         ## Muon cuts
         dilep_mu = events.Muon[(events.Muon.pt > 12) & mu_idiso(events, self._campaign)]
@@ -234,41 +227,9 @@ class NanoProcessor(processor.ProcessorABC):
                 weights.add(
                     "puweight", puwei(self.SF_map, events[event_level].Pileup.nTrueInt)
                 )
-<<<<<<< HEAD
-        '''
-        if self.CorrectingRC == True:
-            weights.add(
-                "lep1rocorr",
-                np.where(
-                    event_level,
-                    applyRC(
-                        self,
-                        ak.firsts(neg_dilep),
-                    ),
-                    1.0,
-                ),
-            )
-            weights.add(
-                "lep2rocorr",
-                np.where(
-                    event_level,
-                    applyRC(
-                        self,
-                        ak.firsts(neg_dilep),
-                    ),
-                    1.0,
-                ),
-            )
-
-            print("im here")
-        '''
-        print("out and go")
-        #sys.exit()
-=======
             if "MUO" in self.SF_map.keys() or "EGM" in self.SF_map.keys():
                 weights.add("lep1sf", muSFs(sposmu, self.SF_map, True))
                 weights.add("lep2sf", muSFs(snegmu, self.SF_map, True))
->>>>>>> upstream/master
         if isRealData:
             genflavor = ak.zeros_like(sjets.pt)
         else:

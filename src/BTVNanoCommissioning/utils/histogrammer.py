@@ -200,7 +200,7 @@ def histogrammer(workflow):
             )
 
     elif "DY_sf" in workflow:
-        obj_list = ["posl", "negl", "z", "jet"]
+        obj_list = ["posl", "negl", "z", "MET"]
         _hist_dict["z_mass"] = Hist.Hist(
             Hist.axis.Regular(50, 50, 100, name="mass", label="$m_Z$ [GeV]"),
             Hist.storage.Weight(),
@@ -212,6 +212,24 @@ def histogrammer(workflow):
             )
             _hist_dict[f"{i}_dxy"] = Hist.Hist(dxy_axis, Hist.storage.Weight())
             _hist_dict[f"{i}_dz"] = Hist.Hist(dz_axis, Hist.storage.Weight())
+
+    elif "QCDmuen" in workflow:
+        obj_list = ["mu", "MET"]
+        _hist_dict["nmu"] = Hist.Hist(n_axis, Hist.storage.Weight())
+        for i in range(2):
+            obj_list.append(f"jet{i}")
+            _hist_dict[f"dr_mujet{i}"] = Hist.Hist(
+                flav_axis, dr_axis, Hist.storage.Weight()
+            )
+        _hist_dict["mu_pfRelIso04_all"] = Hist.Hist(
+            iso_axis, Hist.storage.Weight()
+            )
+        _hist_dict[f"muon_dxy"] = Hist.Hist(dxy_axis, Hist.storage.Weight())
+        _hist_dict[f"muon_dz"] = Hist.Hist(dz_axis, Hist.storage.Weight())
+        _hist_dict[f"mu_ptratio"] = Hist.Hist(
+            flav_axis, osss_axis, ptratio_axis, Hist.storage.Weight()
+        )
+
     ### Common kinematic variables
     if "Wc_sf" not in workflow:
         _hist_dict["njet"] = Hist.Hist(n_axis, Hist.storage.Weight())
