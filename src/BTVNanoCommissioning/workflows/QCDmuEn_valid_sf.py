@@ -96,8 +96,11 @@ class NanoProcessor(processor.ProcessorABC):
             req_lumi = self.lumiMask(events.run, events.luminosityBlock)
 
         ## HLT
-        triggers = ["Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"]
-        #triggers = ["BTagMu_DiJet40_Mu5"]
+        #triggers = ["Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"]
+        #triggers = ["HLT_BTagMu_AK4DiJet40_Mu5"]
+        triggers = ["BTagMu_AK4DiJet40_Mu5"]
+        print("---------------->all triggers:", triggers)
+        #sys.exit()
         checkHLT = ak.Array([hasattr(events.HLT, _trig) for _trig in triggers])
         if ak.all(checkHLT == False):
             raise ValueError("HLT paths:", triggers, " are all invalid in", dataset)
@@ -139,7 +142,7 @@ class NanoProcessor(processor.ProcessorABC):
         event_jet = events.Jet[
             jet_id(events, self._campaign)
             & ak.all(
-                events.Jet.metric_table(dilep_muo) > 0.4, axis=2, mask_identity=True
+                events.Jet.metric_table(dilep_muo) <= 0.4, axis=2, mask_identity=True
             )
         ]
         req_jets = ak.num(event_jet.pt) >= 1#50
@@ -309,7 +312,7 @@ class NanoProcessor(processor.ProcessorABC):
                             weight=weights.weight(),
                                             )
                         except ValueError as ve:
-                            print(" print theres a value error here", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]), len(weights.weight()), ve)
+                            print("There is a value error here:", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]), len(weights.weight()), ve)
                             
                             exit()
             elif (
