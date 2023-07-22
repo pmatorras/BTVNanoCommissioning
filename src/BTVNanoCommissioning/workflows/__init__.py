@@ -1,3 +1,5 @@
+from functools import partial
+
 # Validation
 from BTVNanoCommissioning.workflows.validation import (
     NanoProcessor as ValidationProcessor,
@@ -42,9 +44,19 @@ from BTVNanoCommissioning.workflows.ctag_ettsemilep_valid_sf import (
 from BTVNanoCommissioning.workflows.ctag_semileptt_valid_sf import (
     NanoProcessor as CTAGSemilepttValidSFProcessor,
 )
+<<<<<<< HEAD
 from BTVNanoCommissioning.workflows.QCDmuEn_valid_sf import (
     NanoProcessor as QCDmuenValidSFProcessor,
 )
+=======
+from BTVNanoCommissioning.workflows.BTA_producer import (
+    NanoProcessor as BTA_processor,
+)
+
+# from BTVNanoCommissioning.workflows.example import (
+#     NanoProcessor as ExampleProcessor,
+# )
+>>>>>>> upstream/master
 
 # FIXME - make names more systematic?
 workflows = {}
@@ -69,5 +81,12 @@ workflows["ectag_Wc_sf"] = CTAGeWcValidSFProcessor
 # DY
 workflows["ctag_DY_sf"] = CTAGDYValidSFProcessor
 workflows["ectag_DY_sf"] = CTAGeDYValidSFProcessor
+
+# Tutorial
+# workflows["example"] = ExampleProcessor
+# BTA producer
+workflows["BTA"] = BTA_processor
+workflows["BTA_addPFMuons"] = partial(BTA_processor, addPFMuons=True)
+workflows["BTA_addAllTracks"] = partial(BTA_processor, addAllTracks=True)
 
 __all__ = ["workflows"]

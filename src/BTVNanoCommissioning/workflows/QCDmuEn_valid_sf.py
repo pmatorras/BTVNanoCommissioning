@@ -145,7 +145,7 @@ class NanoProcessor(processor.ProcessorABC):
                 events.Jet.metric_table(dilep_muo) <= 0.4, axis=2, mask_identity=True
             )
         ]
-        req_jets = ak.num(event_jet.pt) >= 1#50
+        req_jets = ak.num(event_jet.pt) >= 50
         event_jet = ak.pad_none(event_jet, 1, axis=1)
 
         ## store jet index for PFCands, create mask on the jet index
@@ -314,7 +314,7 @@ class NanoProcessor(processor.ProcessorABC):
                         except ValueError as ve:
                             print("There is a value error here:", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]), len(weights.weight()), ve)
                             
-                            exit()
+                            #exit()
             elif (
                 "btagDeep" in histname
                 and "0" in histname
