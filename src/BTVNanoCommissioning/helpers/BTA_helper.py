@@ -5,6 +5,10 @@ import pandas as pd
 import coffea.nanoevents.methods.vector as vector
 import os, psutil
 
+###############
+#  HLT table  #
+###############
+# HLTs for BTA (qcd) and BTA_ttbar workflows
 BTA_HLT = [
     "PFJet40",
     "PFJet60",
@@ -47,6 +51,16 @@ BTA_HLT = [
     "BTagMu_AK8DiJet170_Mu5",
     "BTagMu_AK8Jet300_Mu5",
 ]
+BTA_ttbar_HLT_chns = [
+    ("Ele32_WPTight_Gsf", "e"),
+    ("IsoMu24", "m"),
+    ("Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ", "em"),
+    ("Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL", "em"),
+]
+
+################
+#  Mass table  #
+################
 # mass table from https://github.com/scikit-hep/particle/blob/master/src/particle/data/particle2022.csv and https://gitlab.cern.ch/lhcb-conddb/DDDB/-/blob/master/param/ParticleTable.txt
 df_main = pd.read_csv(
     "src/BTVNanoCommissioning/helpers/particle2022.csv", delimiter=",", skiprows=1
@@ -60,6 +74,9 @@ backup = dict(zip(df_back.PDGID, df_back["MASS(GeV)"]))
 hadron_mass_table = {**main, **{k: v for k, v in backup.items() if k not in main}}
 
 
+###############
+#  Functions  #
+###############
 def is_from_GSP(GenPart):
     QGP = ak.zeros_like(GenPart.genPartIdxMother)
     QGP = (
@@ -140,27 +157,27 @@ def cumsum(array):
 
 
 def calc_ip_vector(obj, dxy, dz, is_3d=False):
-    '''Calculate the 2D or 3D impact parameter vector, given the track obj (with 4-mom), 
-       and its dxy and dz, taking the standard definition from NanoAOD'''
+    """Calculate the 2D or 3D impact parameter vector, given the track obj (with 4-mom),
+    and its dxy and dz, taking the standard definition from NanoAOD"""
 
     # 2D impact parameter
     pvec = ak.zip(
         {
-            'x': obj.px,
-            'y': obj.py,
-            'z': obj.pz,
+            "x": obj.px,
+            "y": obj.py,
+            "z": obj.pz,
         },
         behavior=vector.behavior,
-        with_name='ThreeVector'
+        with_name="ThreeVector",
     )
     zvec = ak.zip(
         {
-            'x': ak.zeros_like(dxy),
-            'y': ak.zeros_like(dxy),
-            'z': ak.zeros_like(dxy) + 1,
+            "x": ak.zeros_like(dxy),
+            "y": ak.zeros_like(dxy),
+            "z": ak.zeros_like(dxy) + 1,
         },
         behavior=vector.behavior,
-        with_name='ThreeVector'
+        with_name="ThreeVector",
     )
     # 2D impact parameter vector: (-py, px) / pt * dxy
     ipvec_2d = zvec.cross(pvec) * dxy / obj.pt
@@ -172,12 +189,12 @@ def calc_ip_vector(obj, dxy, dz, is_3d=False):
     # first, extend ipvec_2d to 3D space
     ipvec_2d_ext = ak.zip(
         {
-            'x': ipvec_2d.x,
-            'y': ipvec_2d.y,
-            'z': dz,
+            "x": ipvec_2d.x,
+            "y": ipvec_2d.y,
+            "z": dz,
         },
         behavior=vector.behavior,
-        with_name='ThreeVector'
+        with_name="ThreeVector",
     )
     # then, get the closest distance to the track on 3D geometry
     ipvec_3d = ipvec_2d_ext - ipvec_2d_ext.dot(pvec) / pvec.p2 * pvec

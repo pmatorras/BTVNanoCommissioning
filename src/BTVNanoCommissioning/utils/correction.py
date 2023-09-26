@@ -4,6 +4,7 @@ import pickle
 import contextlib
 import cloudpickle
 import os
+import re
 import numpy as np
 import awkward as ak
 from coffea.lookup_tools import extractor, txt_converters, rochester_lookup
@@ -218,7 +219,6 @@ def load_SF(campaign, syst=False):
                 correction_map["JMAR"] = correctionlib.CorrectionSet.from_file(
                     f"src/BTVNanoCommissioning/jsonpog-integration/POG/JME/{campaign}/jmar.json.gz"
                 )
-
     return correction_map
 
 
@@ -326,15 +326,15 @@ met_filters = {
     },
 }
 
-import matplotlib.pyplot as plt
 
 ext_jetvetomap = extractor()
-ext_jetvetomap.add_weight_sets(
-    [
-        "RunCD jetvetomap src/BTVNanoCommissioning/data/JME/Winter22Run3/Winter22Run3_RunCD_v1.histo.root",
-        "RunE jetvetomap src/BTVNanoCommissioning/data/JME/Winter22Run3/Winter22Run3_RunE_v1.histo.root",
-    ]
-)
+with contextlib.ExitStack() as stack:
+    ext_jetvetomap.add_weight_sets(
+        [
+            f"RunCD jetvetomap {stack.enter_context(importlib.resources.path('BTVNanoCommissioning.data.JME.Winter22Run3','Winter22Run3_RunCD_v1.histo.root'))}",
+            f"RunE jetvetomap {stack.enter_context(importlib.resources.path('BTVNanoCommissioning.data.JME.Winter22Run3','Winter22Run3_RunE_v1.histo.root'))}",
+        ]
+    )
 
 ext_jetvetomap.finalize()
 jetvetomap = ext_jetvetomap.make_evaluator()
@@ -350,7 +350,12 @@ def jetveto(events):
             ak.ones_like(events.Jet.eta),
             ak.zeros_like(events.Jet.eta),
         )
-    elif "Run2022E" in events.metadata["dataset"]:
+    elif (
+        "Run2022E" in events.metadata["dataset"]
+        or "Run2022F" in events.metadata["dataset"]
+        or "Run2022G" in events.metadata["dataset"]
+    ):
+        # FIXME: use prompt RunE vetomap for now, but should be updated to RunFG
         return ak.where(
             jetvetomap["RunE"](events.Jet.phi, events.Jet.eta) > 0,
             ak.ones_like(events.Jet.eta),
@@ -403,8 +408,8 @@ def JME_shifts(
             jecname = "FGH"
         elif campaign == "Rereco17_94X":
             jecname = ""
-        elif "un" in dataset:
-            jecname = dataset[dataset.find("un") + 6]
+        elif re.search(r"[Rr]un20\d{2}([A-Z])", dataset):
+            jecname = re.search(r"[Rr]un20\d{2}([A-Z])", dataset).group(1)
         else:
             print("No valid jec name")
             raise NameError
@@ -415,7 +420,10 @@ def JME_shifts(
         add_jec_variables(events.Jet, events.fixedGridRhoFastjetAll),
         lazy_cache=events.caches[0],
     )
-    met = correct_map["JME"]["met_factory"].build(events.MET, jets, {})
+    if "Run3" not in campaign:
+        met = correct_map["JME"]["met_factory"].build(events.MET, jets, {})
+    else:
+        met = correct_map["JME"]["met_factory"].build(events.PuppiMET, jets, {})
     ## HEM 18 issue
     if isRealData:
         if "2018" in events.metadata["dataset"]:
