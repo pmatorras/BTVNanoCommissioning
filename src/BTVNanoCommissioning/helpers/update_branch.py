@@ -2,7 +2,6 @@ from BTVNanoCommissioning.helpers.func import update
 from BTVNanoCommissioning.utils.correction import add_jec_variables, jetveto
 import numpy as np
 
-
 def missing_branch(events):
     events['fixedGridRhoFastjetAll'] = (
         events.fixedGridRhoFastjetAll

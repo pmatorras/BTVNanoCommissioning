@@ -44,11 +44,9 @@ from BTVNanoCommissioning.workflows.ctag_ettsemilep_valid_sf import (
 from BTVNanoCommissioning.workflows.ctag_semileptt_valid_sf import (
     NanoProcessor as CTAGSemilepttValidSFProcessor,
 )
-<<<<<<< HEAD
 from BTVNanoCommissioning.workflows.QCDmuEn_valid_sf import (
     NanoProcessor as QCDmuenValidSFProcessor,
 )
-=======
 from BTVNanoCommissioning.workflows.BTA_producer import (
     NanoProcessor as BTA_processor,
 )
@@ -56,7 +54,6 @@ from BTVNanoCommissioning.workflows.BTA_producer import (
 # from BTVNanoCommissioning.workflows.example import (
 #     NanoProcessor as ExampleProcessor,
 # )
->>>>>>> upstream/master
 
 # FIXME - make names more systematic?
 workflows = {}

@@ -88,10 +88,7 @@ def get_main_parser():
         help="Dataset campaign, change the corresponding correction files",
     )
     parser.add_argument("--isCorr", action="store_true", help="Run with SFs")
-<<<<<<< HEAD
     parser.add_argument("--roCorr", action="store_true", help="Run with Rochester corrections")
-    parser.add_argument("--isSyst", action="store_true", help="Run with systematics")
-=======
     parser.add_argument(
         "--isSyst",
         default=None,
@@ -99,7 +96,6 @@ def get_main_parser():
         choices=[None, "all", "weight_only", "JERC_split"],
         help="Run with systematics, all, weights_only(no JERC uncertainties included),JERC_split, None",
     )
->>>>>>> upstream/master
     parser.add_argument(
         "--isJERC", action="store_true", help="JER/JEC implemented to jet"
     )
@@ -298,16 +294,14 @@ if __name__ == "__main__":
         sys.exit(0)
 
     # load workflow
-<<<<<<< HEAD
+
     if "ttcom" == args.workflow or "validation" == args.workflow:
         processor_instance = workflows[args.workflow](args.year, args.campaign)
     else:
         print ("im here, no?", workflows[args.workflow], type(workflows[args.workflow]), args.year, args.campaign, args.isCorr, args.isJERC, args.roCorr)
-        processor_instance = workflows[args.workflow](
-            args.year, args.campaign, args.isCorr, args.isJERC, args.isSyst, args.roCorr
-        )
-=======
->>>>>>> upstream/master
+        #processor_instance = workflows[args.workflow](
+        #    args.year, args.campaign, args.isCorr, args.isJERC, args.isSyst, args.roCorr
+        #)
 
     processor_instance = workflows[args.workflow](
         args.year,
@@ -388,7 +382,7 @@ if __name__ == "__main__":
                 "skipbadfiles": args.skipbadfiles,
                 "schema": PFNanoAODSchema,
                 "workers": args.workers,
-                "xrootdtimeout": 900,
+                "xrootdtimeout": 9000,
             },
             chunksize=args.chunk,
             maxchunks=args.max,

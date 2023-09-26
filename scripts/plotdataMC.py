@@ -8,7 +8,7 @@ import hist
 
 plt.style.use(hep.style.ROOT)
 from BTVNanoCommissioning.workflows import workflows
-from BTVNanoCommissioning.utils.xs_scaler import collate, scaleSumW
+from BTVNanoCommissioning.helpers.xs_scaler import collate, scaleSumW
 from BTVNanoCommissioning.helpers.definitions import definitions, axes_name
 from BTVNanoCommissioning.utils.plot_utils import (
     plotratio,
@@ -26,24 +26,21 @@ parser.add_argument(
     "-p",
     "--phase",
     required=True,
-<<<<<<< HEAD:plotting/plotdataMC.py
-    choices=[
-        "ttdilep_sf",
-        "ttsemilep_sf",
-        "ctag_Wc_sf",
-        "ctag_DY_sf",
-        "ctag_ttsemilep_sf",
-        "ctag_ttdilep_sf",
-        "ectag_Wc_sf",
-        "ectag_DY_sf",
-        "ectag_ttsemilep_sf",
-        "ectag_ttdilep_sf",
-        "emctag_ttdilep_sf",
-        "QCDmuen"
-    ],
-=======
+    #choices=[
+    #    "ttdilep_sf",
+    #    "ttsemilep_sf",
+    #    "ctag_Wc_sf",
+    #    "ctag_DY_sf",
+    #    "ctag_ttsemilep_sf",
+    #    "ctag_ttdilep_sf",
+    #    "ectag_Wc_sf",
+    #    "ectag_DY_sf",
+    #    "ectag_ttsemilep_sf",
+    #    "ectag_ttdilep_sf",
+    #    "emctag_ttdilep_sf",
+    #    "QCDmuen"
+    #],
     choices=list(workflows.keys()),
->>>>>>> upstream/master:scripts/plotdataMC.py
     dest="phase",
     help="which phase space",
 )

@@ -12,17 +12,11 @@ from BTVNanoCommissioning.utils.correction import (
     JME_shifts,
     Roccor_shifts,
 )
-<<<<<<< HEAD
 from BTVNanoCommissioning.utils.testRC2 import getRCFile, applyRC
 from BTVNanoCommissioning.utils.AK4_parameters import correction_config
-from BTVNanoCommissioning.helpers.func import flatten, update
-from BTVNanoCommissioning.helpers.update_branch import missing_branch, add_jec
-=======
-
 from BTVNanoCommissioning.helpers.func import flatten, update, uproot_writeable
 from BTVNanoCommissioning.helpers.update_branch import missing_branch
 
->>>>>>> upstream/master
 from BTVNanoCommissioning.utils.histogrammer import histogrammer
 from BTVNanoCommissioning.utils.selection import jet_id, mu_idiso, ele_mvatightid
 import sys
@@ -35,19 +29,15 @@ class NanoProcessor(processor.ProcessorABC):
         isCorr=True,
         isJERC=False,
         isSyst=False,
-<<<<<<< HEAD
-        roCorr=False        
-=======
+        roCorr=False,        
         isArray=False,
         noHist=False,
         chunksize=75000,
->>>>>>> upstream/master
     ):
         self._year = year
         self._campaign = campaign
         self.isCorr = isCorr
         self.isJERC = isJERC
-<<<<<<< HEAD
         self.isSyst = isSyst
         self.roCorr = roCorr
         #print("which campaign", self._campaign, correction_config[self._campaign]["lumiMask"])
@@ -80,8 +70,7 @@ class NanoProcessor(processor.ProcessorABC):
             rcFilename = getRCFile(self,'2022')
             print(rcFilename)
             #sys.exit()
-=======
->>>>>>> upstream/master
+
         self.isSyst = isSyst
         self.isArray = isArray
         self.noHist = noHist
@@ -98,11 +87,8 @@ class NanoProcessor(processor.ProcessorABC):
 
     def process(self, events):
         isRealData = not hasattr(events, "genWeight")
-<<<<<<< HEAD
         self.isRealData = isRealData
-=======
         dataset = events.metadata["dataset"]
->>>>>>> upstream/master
         events = missing_branch(events)
         shifts = []
         if "JME" in self.SF_map.keys() and self.isJERC:

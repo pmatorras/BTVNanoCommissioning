@@ -21,6 +21,7 @@ from BTVNanoCommissioning.utils.selection import jet_id, mu_idiso, ele_mvatighti
 import sys
 
 class NanoProcessor(processor.ProcessorABC):
+    '''
     def __init__(self, year="2017", campaign="Rereco17_94X", isCorr=True, isJERC=False, roCorr=False, isSyst=False):
         self._year = year
         self._campaign = campaign
@@ -29,7 +30,27 @@ class NanoProcessor(processor.ProcessorABC):
         self.roCorr = roCorr
         print(campaign, correction_config[campaign])
         self.lumiMask = load_lumi(self._campaign)#correction_config[self._campaign]["lumiMask"])
-
+    '''
+    def __init__(
+        self,
+        year="2017",
+        campaign="Rereco17_94X",
+        isCorr=True,
+        isJERC=False,
+        isSyst=False,
+        isArray=False,
+        noHist=False,
+        chunksize=75000,
+    ):
+        self._year = year
+        self._campaign = campaign
+        self.isCorr = isCorr
+        self.isJERC = isJERC
+        self.isSyst = isSyst
+        self.isArray = isArray
+        self.noHist = noHist
+        self.lumiMask = load_lumi(self._campaign)
+        self.chunksize = chunksize
         ## Load corrections
         if isCorr:
             if "BTV" in correction_config[self._campaign].keys():
@@ -49,7 +70,7 @@ class NanoProcessor(processor.ProcessorABC):
                 self._pu = load_pu(
                     self._campaign, correction_config[self._campaign]["PU"]
                 )
-
+        roCorr =False
         if roCorr:
             print("im doing rocooricos")
             rcFilename = getRCFile(self,'2022')
@@ -113,9 +134,10 @@ class NanoProcessor(processor.ProcessorABC):
         for t in trig_arrs:
             req_trig = req_trig | t
 
-        if self.roCorr:
-            print("Applying rochester corrections")
-            events.Muon = applyRC(self,events)
+        
+        #if self.roCorr:
+        #    print("Applying rochester corrections")
+        #    events.Muon = applyRC(self,events)
         ## Muon cuts
         dilep_muo = events.Muon[(events.Muon.pt > 5) & (abs(events.Muon.eta)<2.5) & mu_idiso(events, self._campaign)]
         ## Electron cuts

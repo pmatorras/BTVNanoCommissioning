@@ -240,7 +240,6 @@ def histogrammer(workflow):
             _hist_dict[f"{i}_dxy"] = Hist.Hist(
                 syst_axis, dxy_axis, Hist.storage.Weight()
             )
-<<<<<<< HEAD
             _hist_dict[f"{i}_dxy"] = Hist.Hist(dxy_axis, Hist.storage.Weight())
             _hist_dict[f"{i}_dz"] = Hist.Hist(dz_axis, Hist.storage.Weight())
 
@@ -261,9 +260,6 @@ def histogrammer(workflow):
             flav_axis, osss_axis, ptratio_axis, Hist.storage.Weight()
         )
 
-=======
-            _hist_dict[f"{i}_dz"] = Hist.Hist(syst_axis, dz_axis, Hist.storage.Weight())
->>>>>>> upstream/master
     ### Common kinematic variables
     if "Wc_sf" not in workflow:
         _hist_dict["njet"] = Hist.Hist(syst_axis, n_axis, Hist.storage.Weight())
