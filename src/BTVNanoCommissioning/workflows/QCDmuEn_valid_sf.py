@@ -177,11 +177,7 @@ class NanoProcessor(processor.ProcessorABC):
         ## Muon cuts
         muo = events.Muon[(events.Muon.pt > 5) & (abs(events.Muon.eta)<2.5) & mu_idiso(events, self._campaign)]
         req_muon= ak.num(muo.pt)==1
-        ## Electron cuts
-        dilep_ele = events.Electron[
-            (events.Electron.pt > 15) & ele_mvatightid(events, self._campaign)
-        ]
-
+        
         ## Jet cuts
         events.Jet[
            (events.Jet.pt>50)
