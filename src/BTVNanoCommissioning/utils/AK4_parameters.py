@@ -46,7 +46,7 @@ correction_config = {
     },
     "Summer22EERun3": {
         "lumiMask": "Cert_Collisions2022_355100_362760_Golden.json",
-        "PU": "puweight_Summer22EERun3.histo.root",  # 80mb
+        #"PU": "puweight_Summer22EERun3.histo.root",  # 80mb
         "JME": "jec_compiled.pkl.gz",
     },
 }

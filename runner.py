@@ -309,14 +309,6 @@ if __name__ == "__main__":
         sys.exit(0)
 
 
-    if "ttcom" == args.workflow or "validation" == args.workflow:
-        processor_instance = workflows[args.workflow](args.year, args.campaign)
-    else:
-        print ("im here, no?", workflows[args.workflow], type(workflows[args.workflow]), args.year, args.campaign, args.isCorr, args.isJERC, args.roCorr)
-        #processor_instance = workflows[args.workflow](
-        #    args.year, args.campaign, args.isCorr, args.isJERC, args.isSyst, args.roCorr
-        #)
-
     processor_instance = workflows[args.workflow](
         args.year,
         args.campaign,

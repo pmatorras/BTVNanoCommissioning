@@ -10,6 +10,8 @@ from BTVNanoCommissioning.utils.correction import (
     puwei,
     btagSFs,
     load_jmefactory,
+    JME_shifts,
+    Roccor_shifts,
 )
 from BTVNanoCommissioning.utils.testRC2 import getRCFile, applyRC
 from BTVNanoCommissioning.utils.AK4_parameters import correction_config
@@ -33,10 +35,9 @@ class NanoProcessor(processor.ProcessorABC):
     '''
     def __init__(
         self,
-        year="2017",
-        campaign="Rereco17_94X",
-        isCorr=True,
-        isJERC=False,
+        year="2022",
+        campaign="Summer22Run3",
+        name="",
         isSyst=False,
         isArray=False,
         noHist=False,
@@ -44,14 +45,15 @@ class NanoProcessor(processor.ProcessorABC):
     ):
         self._year = year
         self._campaign = campaign
-        self.isCorr = isCorr
-        self.isJERC = isJERC
+        self.name = name
         self.isSyst = isSyst
         self.isArray = isArray
         self.noHist = noHist
         self.lumiMask = load_lumi(self._campaign)
         self.chunksize = chunksize
         ## Load corrections
+        self.SF_map = load_SF(self._campaign)
+        '''
         if isCorr:
             if "BTV" in correction_config[self._campaign].keys():
                 self._deepjetc_sf = load_BTV(
@@ -70,9 +72,10 @@ class NanoProcessor(processor.ProcessorABC):
                 self._pu = load_pu(
                     self._campaign, correction_config[self._campaign]["PU"]
                 )
+        '''
         roCorr =False
         if roCorr:
-            print("im doing rocooricos")
+            print("im doing rocorr")
             rcFilename = getRCFile(self,'2022')
             print(rcFilename)
             #sys.exit()
@@ -80,29 +83,66 @@ class NanoProcessor(processor.ProcessorABC):
         self.lumiMask = load_lumi(self._campaign)
 
         ## Load corrections
-        if isCorr:
-            self.SF_map = load_SF(self._campaign)
-        if isJERC:
-            self._jet_factory = load_jmefactory(self._campaign)
-        _hist_event_dict = histogrammer("QCDmuen")
-        self.make_output = lambda: {
-            "sumw": processor.defaultdict_accumulator(float),
-            **_hist_event_dict,
-        }
+        #if isCorr:
+        #    self.SF_map = load_SF(self._campaign)
+        #if isJERC:
+        #    self._jet_factory = load_jmefactory(self._campaign)
 
     @property
     def accumulator(self):
         return self._accumulator
 
     def process(self, events):
-        output = self.make_output()
+        isRealData = not hasattr(events, "genWeight")
+        dataset = events.metadata["dataset"]
+        events = missing_branch(events)
+        shifts = []
+        if "JME" in self.SF_map.keys():
+            syst_JERC = True if self.isSyst != None else False
+            if self.isSyst == "JERC_split":
+                syst_JERC = "split"
+            shifts = JME_shifts(
+                shifts, self.SF_map, events, self._campaign, isRealData, syst_JERC
+            )
+        else:
+            if "Run3" not in self._campaign:
+                shifts = [
+                    ({"Jet": events.Jet, "MET": events.MET, "Muon": events.Muon}, None)
+                ]
+            else:
+                shifts = [
+                    (
+                        {
+                            "Jet": events.Jet,
+                            "MET": events.PuppiMET,
+                            "Muon": events.Muon,
+                        },
+                        None,
+                    )
+                ]
+        if "roccor" in self.SF_map.keys():
+            shifts = Roccor_shifts(shifts, self.SF_map, events, isRealData, False)
+        else:
+            shifts[0][0]["Muon"] = events.Muon
+
+        return processor.accumulate(
+            self.process_shift(update(events, collections), name)
+            for collections, name in shifts
+        )
+    def process_shift(self, events, shift_name):
         dataset = events.metadata["dataset"]
         isRealData = not hasattr(events, "genWeight")
         self.isRealData = isRealData
-        events = missing_branch(events)
+        _hist_event_dict = (
+            {"": None} if self.noHist else histogrammer(events, "QCDmuen")
+        )
 
-        if self.isJERC:
-            events = add_jec(events, self._campaign, self._jet_factory)
+        output = {
+            "sumw": processor.defaultdict_accumulator(float),
+            **_hist_event_dict,
+        }
+        #if self.isJERC:
+        #    events = add_jec(events, self._campaign, self._jet_factory)
         if isRealData:
             output["sumw"] = len(events)
         else:
@@ -120,7 +160,6 @@ class NanoProcessor(processor.ProcessorABC):
         #triggers = ["Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"]
         #triggers = ["HLT_BTagMu_AK4DiJet40_Mu5"]
         triggers = ["BTagMu_AK4DiJet40_Mu5"]
-        print("---------------->all triggers:", triggers)
         #sys.exit()
         checkHLT = ak.Array([hasattr(events.HLT, _trig) for _trig in triggers])
         if ak.all(checkHLT == False):
@@ -322,7 +361,6 @@ class NanoProcessor(processor.ProcessorABC):
                 )
 
             elif "jet" in histname and "dr" not in histname and "njet" != histname:
-                print("inside jet", histname)
                 for i in range(2):
                     sel_jet = sjets[:, i]
                     print( str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]))
@@ -378,12 +416,59 @@ class NanoProcessor(processor.ProcessorABC):
         output["z_eta"].fill(flatten(sz.eta), weight=weights.weight())
         output["z_phi"].fill(flatten(sz.phi), weight=weights.weight())
         output["z_mass"].fill(flatten(sz.mass), weight=weights.weight())
-        for i in range(2):
-            output[f"dr_mujet{i}"].fill(
-                flav=flatten(genflavor[:, i]),
-                dr=flatten(smu.delta_r(sjets[:, i])),
-                weight=weights.weight(),
+        #######################
+        #  Create root files  #
+        #######################
+        if self.isArray:
+            # Keep the structure of events and pruned the object size
+            pruned_ev = events[event_level]
+            pruned_ev.Jet = sel_jet
+            pruned_ev.Muon = smu
+            pruned_ev["dilep"] = sposmu + snegmu
+            pruned_ev["dilep", "pt"] = pruned_ev.dilep.pt
+            pruned_ev["dilep", "eta"] = pruned_ev.dilep.eta
+            pruned_ev["dilep", "phi"] = pruned_ev.dilep.phi
+            pruned_ev["dilep", "mass"] = pruned_ev.dilep.mass
+            if "PFCands" in events.fields:
+                pruned_ev.PFCands = spfcands
+            # Add custom variables
+            if not isRealData:
+                pruned_ev["weight"] = weights.weight()
+                for ind_wei in weights.weightStatistics.keys():
+                    pruned_ev[f"{ind_wei}_weight"] = weights.partial_weight(
+                        include=[ind_wei]
+                    )
+
+            for i in range(2):
+                output[f"dr_mujet{i}"].fill(
+                    flav=flatten(genflavor[:, i]),
+                    dr=flatten(smu.delta_r(sjets[:, i])),
+                    weight=weights.weight(),
+                )
+        
+            # Create a list of variables want to store. For objects from the PFNano file, specify as {object}_{variable}, wildcard option only accepted at the end of the string
+            out_branch = np.setdiff1d(
+                np.array(pruned_ev.fields), np.array(events.fields)
             )
+            out_branch = np.delete(
+                out_branch,
+                np.where((out_branch == "dilep")),
+            )
+
+            for kin in ["pt", "eta", "phi", "mass", "pfRelIso04_all", "dxy", "dz"]:
+                for obj in ["Muon", "Jet", "dilep"]:
+                    if (obj != "Muon") and ("pfRelIso04_all" == kin or "d" in kin):
+                        continue
+                    out_branch = np.append(out_branch, [f"{obj}_{kin}"])
+            out_branch = np.append(
+                out_branch, ["Jet_btagDeep*", "Jet_DeepJet*", "PFCands_*"]
+            )
+            # write to root files
+            os.system(f"mkdir -p {self.name}/{dataset}")
+            with uproot.recreate(
+                f"{self.name}/{dataset}/f{events.metadata['filename'].split('_')[-1].replace('.root','')}_{systematics[0]}_{int(events.metadata['entrystop']/self.chunksize)}.root"
+            ) as fout:
+                fout["Events"] = uproot_writeable(pruned_ev, include=out_branch)
 
         return {dataset: output}
 
