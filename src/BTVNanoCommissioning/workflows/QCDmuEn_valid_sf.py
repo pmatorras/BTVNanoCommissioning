@@ -157,10 +157,7 @@ class NanoProcessor(processor.ProcessorABC):
             req_lumi = self.lumiMask(events.run, events.luminosityBlock)
 
         ## HLT
-        #triggers = ["Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_Mass8"]
-        #triggers = ["HLT_BTagMu_AK4DiJet40_Mu5"]
         triggers = ["BTagMu_AK4DiJet40_Mu5"]
-        #sys.exit()
         checkHLT = ak.Array([hasattr(events.HLT, _trig) for _trig in triggers])
         if ak.all(checkHLT == False):
             raise ValueError("HLT paths:", triggers, " are all invalid in", dataset)
@@ -178,35 +175,23 @@ class NanoProcessor(processor.ProcessorABC):
         #    print("Applying rochester corrections")
         #    events.Muon = applyRC(self,events)
         ## Muon cuts
-        dilep_muo = events.Muon[(events.Muon.pt > 5) & (abs(events.Muon.eta)<2.5) & mu_idiso(events, self._campaign)]
+        muo = events.Muon[(events.Muon.pt > 5) & (abs(events.Muon.eta)<2.5) & mu_idiso(events, self._campaign)]
+        req_muon= ak.num(muo.pt)==1
         ## Electron cuts
         dilep_ele = events.Electron[
             (events.Electron.pt > 15) & ele_mvatightid(events, self._campaign)
         ]
-        ## dilepton
-        '''
-        req_dilep = (
-            (ak.num(pos_dilep.pt) >= 1)
-            & (ak.num(neg_dilep.pt) >= 1)
-            & (ak.num(dilep_mu.charge) >= 2)
-            & (ak.num(dilep_ele.charge) == 0)
-        )
-        pos_dilep = ak.pad_none(pos_dilep, 1, axis=1)
-        neg_dilep = ak.pad_none(neg_dilep, 1, axis=1)
 
-        dilep_mass = pos_dilep[:, 0] + neg_dilep[:, 0]
-        req_dilepmass = (
-            (dilep_mass.mass > 81) & (dilep_mass.mass < 101) & (dilep_mass.pt > 15)
-        )
-        '''
         ## Jet cuts
-        event_jet = events.Jet[
-            jet_id(events, self._campaign)
+        events.Jet[
+           (events.Jet.pt>50)
+            & jet_id(events, self._campaign)
             & ak.all(
                 events.Jet.metric_table(dilep_muo) <= 0.4, axis=2, mask_identity=True
             )
-        ]
-        req_jets = ak.num(event_jet.pt) >= 50
+            & ((event_jet.muonIdx1 != -1) | (event_jet.muonIdx2 != -1))
+        ]        
+        req_jets  = ak.num(event_jet.pt) >= 2
         event_jet = ak.pad_none(event_jet, 1, axis=1)
 
         ## store jet index for PFCands, create mask on the jet index
@@ -216,7 +201,7 @@ class NanoProcessor(processor.ProcessorABC):
                 jet_id(events, self._campaign)
                 & (
                     ak.all(
-                        events.Jet.metric_table(dilep_muo) <= 0.4,
+                        events.Jet.metric_table(muo) <= 0.4,
                         axis=2,
                         mask_identity=True,
                     )
