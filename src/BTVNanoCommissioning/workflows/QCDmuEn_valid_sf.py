@@ -6,6 +6,7 @@ from coffea.analysis_tools import Weights
 from BTVNanoCommissioning.utils.correction import (
     load_lumi,
     load_SF,
+    eleSFs,
     muSFs,
     puwei,
     btagSFs,
@@ -211,7 +212,7 @@ class NanoProcessor(processor.ProcessorABC):
         jetindx = jetindx[:, 0]
 
         event_level = ak.fill_none(
-            req_lumi & req_trig & req_jets, False
+            req_muon & req_lumi & req_trig & req_jets, False
         )
         if len(events[event_level]) == 0:
             return {dataset: output}
@@ -219,7 +220,8 @@ class NanoProcessor(processor.ProcessorABC):
         # Selected objects #
         ####################
         sjets = events.Jet[event_level]
-        njet = ak.count(sjets.pt, axis=1)
+        smu   = events.Muon[event_level]
+        njet  = ak.count(sjets.pt, axis=1)
         # Find the PFCands associate with selected jets. Search from jetindex->JetPFCands->PFCand
         if "PFCands" in events.fields:
             spfcands = events[event_level].PFCands[
@@ -255,8 +257,6 @@ class NanoProcessor(processor.ProcessorABC):
                     muSFs(
                         smu, self.SF_map, weights, syst_wei, False
                     )  # input selected muon
-                if "EGM" in self.SF_map.keys():
-                    eleSFs(sele, self.SF_map, weights, syst_wei, False)
                 if "BTV" in self.SF_map.keys():
                     # For BTV weight, you need to specify type
                     btagSFs(sjets, self.SF_map, weights, "DeepJetC", syst_wei)
@@ -310,6 +310,7 @@ class NanoProcessor(processor.ProcessorABC):
 
             elif "jet" in histname and "dr" not in histname and "njet" != histname:
                 for i in range(2):
+                    print ("name", histname, i)
                     sel_jet = sjets[:, i]
                     print("check this", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]))
                     if str(i) in histname:
@@ -317,7 +318,7 @@ class NanoProcessor(processor.ProcessorABC):
                             h.fill(
                             flatten(genflavor[:, i]),
                             flatten(sel_jet[histname.replace(f"jet{i}_", "")]),
-                            weight=weights.weight(),
+                            weight=weight,
                                             )
                         except ValueError as ve:
                             print("There is a value error here:", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]), len(weights.weight()), ve)

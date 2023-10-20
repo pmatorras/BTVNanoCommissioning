@@ -34,7 +34,6 @@ class NanoProcessor(processor.ProcessorABC):
         campaign="Summer22Run3",
         name="",
         isSyst=False,
-        roCorr=False,        
         isArray=False,
         noHist=False,
         chunksize=75000,
@@ -43,13 +42,13 @@ class NanoProcessor(processor.ProcessorABC):
         self._campaign = campaign
         self.name = name
         self.isSyst = isSyst
-        self.roCorr = roCorr
-        #print("which campaign", self._campaign, correction_config[self._campaign]["lumiMask"])
-        #sys.exit(0)
-
-        self.lumiMask = load_lumi(campaign)#correction_config[self._campaign]["lumiMask"])
-
+        self.isArray = isArray
+        self.noHist = noHist
+        self.lumiMask = load_lumi(self._campaign)
+        self.chunksize = chunksize
         ## Load corrections
+        self.SF_map = load_SF(self._campaign)
+        '''
         if isCorr:
             if "BTV" in correction_config[self._campaign].keys():
                 self._deepjetc_sf = load_BTV(
@@ -68,20 +67,21 @@ class NanoProcessor(processor.ProcessorABC):
                 self._pu = load_pu(
                     self._campaign, correction_config[self._campaign]["PU"]
                 )
-
-        if self.roCorr:
-            print("im doing rocooricos")
+        '''
+        roCorr =False
+        if roCorr:
+            print("im doing rocorr")
             rcFilename = getRCFile(self,'2022')
             print(rcFilename)
             #sys.exit()
-
         self.isSyst = isSyst
-        self.isArray = isArray
-        self.noHist = noHist
         self.lumiMask = load_lumi(self._campaign)
-        self.chunksize = chunksize
+
         ## Load corrections
-        self.SF_map = load_SF(self._campaign)
+        #if isCorr:
+        #    self.SF_map = load_SF(self._campaign)
+        #if isJERC:
+        #    self._jet_factory = load_jmefactory(self._campaign)
 
     @property
     def accumulator(self):
@@ -168,9 +168,9 @@ class NanoProcessor(processor.ProcessorABC):
         for t in trig_arrs:
             req_trig = req_trig | t
 
-        if self.roCorr:
-            print("Applying rochester corrections")
-            events.Muon = applyRC(self,events)
+        #if roCorr:
+        #    print("Applying rochester corrections")
+        #    events.Muon = applyRC(self,events)
         ## Muon cuts
         dilep_mu = events.Muon[(events.Muon.pt > 12) & mu_idiso(events, self._campaign)]
         ## Electron cuts
