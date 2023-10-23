@@ -281,90 +281,103 @@ class NanoProcessor(processor.ProcessorABC):
         ####################
         #  Fill histogram  #
         ####################
-        for histname, h in output.items():
-            print ("histname",histname)
-            if (
-                "Deep" in histname
-                and "btag" not in histname
-                and histname in events.Jet.fields
-            ):
-                h.fill(
-                    flatten(genflavor),
-                    flatten(sjets[histname]),
-                    weight=flatten(
-                        ak.broadcast_arrays(weights.weight(), sjets["pt"])[0]
-                    ),
-                )
-            elif (
-                "PFCands" in events.fields
-                and "PFCands" in histname
-                and histname.split("_")[1] in events.PFCands.fields
-            ):
-                h.fill(
-                    flatten(ak.broadcast_arrays(genflavor[:, 0], spfcands["pt"])[0]),
-                    flatten(spfcands[histname.replace("PFCands_", "")]),
-                    weight=flatten(
-                        ak.broadcast_arrays(weights.weight(), spfcands["pt"])[0]
-                    ),
-                )
+        for syst in systematics:
+            if self.isSyst == None and syst != "nominal":
+                break
+            if self.noHist:
+                break
+            weight = (
+                weights.weight()
+                if syst == "nominal" or syst == shift_name
+                else weights.weight(modifier=syst)
+            )  # shift up/down for weight systematics
 
-            elif "jet" in histname and "dr" not in histname and "njet" != histname:
-                for i in range(2):
-                    print ("name", histname, i)
-                    sel_jet = sjets[:, i]
-                    print("check this", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]))
-                    if str(i) in histname:
-                        try:
-                            h.fill(
-                            flatten(genflavor[:, i]),
-                            flatten(sel_jet[histname.replace(f"jet{i}_", "")]),
-                            weight=weight,
-                                            )
-                        except ValueError as ve:
-                            print("There is a value error here:", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]), len(weights.weight()), ve)
-                            
-                            #exit()
-            elif (
-                "btagDeep" in histname
-                and "0" in histname
-                and histname.replace("_0", "") in events.Jet.fields
-            ):
-                h.fill(
-                    flav=genflavor[:, 0],
-                    syst="noSF",
-                    discr=np.where(
-                        sel_jet[histname.replace("_0", "")] < 0,
-                        -0.2,
-                        sel_jet[histname.replace("_0", "")],
-                    ),
-                    weight=weights.weight(),
-                )
+            # fill the histogram (check axis defintion in histogrammer and following the order)
+
+            for histname, h in output.items():
+                print ("histname",histname)
                 if (
-                    not isRealData
-                    and self.isCorr
-                    and "btag" in self.SF_map.keys()
-                    and "_b" not in histname
-                    and "_bb" not in histname
-                    and "_lepb" not in histname
+                    "Deep" in histname
+                    and "btag" not in histname
+                    and histname in events.Jet.fields
                 ):
-                    for syst in disc_list[histname.replace("_0", "")][0].keys():
-                        h.fill(
-                            flav=genflavor[:, 0],
-                            syst=syst,
-                            discr=np.where(
-                                sel_jet[histname.replace("_0", "")] < 0,
-                                -0.2,
-                                sel_jet[histname.replace("_0", "")],
-                            ),
-                            weight=weights.weight()
-                            * disc_list[histname.replace("_0", "")][0][syst],
-                        )
-        output["njet"].fill(njet, weight=weights.weight())
-        output["dr_mumu"].fill(dr=snegmu.delta_r(sposmu), weight=weights.weight())
-        output["z_pt"].fill(flatten(sz.pt), weight=weights.weight())
-        output["z_eta"].fill(flatten(sz.eta), weight=weights.weight())
-        output["z_phi"].fill(flatten(sz.phi), weight=weights.weight())
-        output["z_mass"].fill(flatten(sz.mass), weight=weights.weight())
+                    h.fill(
+                        flatten(genflavor),
+                        flatten(sjets[histname]),
+                        weight=flatten(
+                            ak.broadcast_arrays(weights.weight(), sjets["pt"])[0]
+                        ),
+                    )
+                elif (
+                    "PFCands" in events.fields
+                    and "PFCands" in histname
+                    and histname.split("_")[1] in events.PFCands.fields
+                ):
+                    h.fill(
+                        flatten(ak.broadcast_arrays(genflavor[:, 0], spfcands["pt"])[0]),
+                        flatten(spfcands[histname.replace("PFCands_", "")]),
+                        weight=flatten(
+                            ak.broadcast_arrays(weights.weight(), spfcands["pt"])[0]
+                        ),
+                    )
+
+                elif "jet" in histname and "dr" not in histname and "njet" != histname:
+                    for i in range(2):
+                        print ("name", histname, i)
+                        sel_jet = sjets[:, i]
+                        print("check this", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]))
+                        if str(i) in histname:
+                            try:
+                                h.fill(
+                                flatten(genflavor[:, i]),
+                                flatten(sel_jet[histname.replace(f"jet{i}_", "")]),
+                                weight=weight,
+                                                )
+                            except ValueError as ve:
+                                print("There is a value error here:", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]), len(weights.weight()), ve)
+
+                                #exit()
+                elif (
+                    "btagDeep" in histname
+                    and "0" in histname
+                    and histname.replace("_0", "") in events.Jet.fields
+                ):
+                    h.fill(
+                        flav=genflavor[:, 0],
+                        syst="noSF",
+                        discr=np.where(
+                            sel_jet[histname.replace("_0", "")] < 0,
+                            -0.2,
+                            sel_jet[histname.replace("_0", "")],
+                        ),
+                        weight=weights.weight(),
+                    )
+                    if (
+                        not isRealData
+                        and self.isCorr
+                        and "btag" in self.SF_map.keys()
+                        and "_b" not in histname
+                        and "_bb" not in histname
+                        and "_lepb" not in histname
+                    ):
+                        for syst in disc_list[histname.replace("_0", "")][0].keys():
+                            h.fill(
+                                flav=genflavor[:, 0],
+                                syst=syst,
+                                discr=np.where(
+                                    sel_jet[histname.replace("_0", "")] < 0,
+                                    -0.2,
+                                    sel_jet[histname.replace("_0", "")],
+                                ),
+                                weight=weights.weight()
+                                * disc_list[histname.replace("_0", "")][0][syst],
+                            )
+            output["njet"].fill(njet, weight=weights.weight())
+            output["dr_mumu"].fill(dr=snegmu.delta_r(sposmu), weight=weights.weight())
+            output["z_pt"].fill(flatten(sz.pt), weight=weights.weight())
+            output["z_eta"].fill(flatten(sz.eta), weight=weights.weight())
+            output["z_phi"].fill(flatten(sz.phi), weight=weights.weight())
+            output["z_mass"].fill(flatten(sz.mass), weight=weights.weight())
         #######################
         #  Create root files  #
         #######################
