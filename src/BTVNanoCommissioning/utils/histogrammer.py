@@ -250,19 +250,19 @@ def histogrammer(events, workflow):
 
     elif "QCDmuen" in workflow:
         obj_list = ["mu", "MET"]
-        _hist_dict["nmu"] = Hist.Hist(n_axis, Hist.storage.Weight())
+        _hist_dict["nmu"] = Hist.Hist(syst_axis, n_axis, Hist.storage.Weight())
         for i in range(2):
             obj_list.append(f"jet{i}")
             _hist_dict[f"dr_mujet{i}"] = Hist.Hist(
-                flav_axis, dr_axis, Hist.storage.Weight()
+            syst_axis, flav_axis, dr_axis, Hist.storage.Weight()
             )
             _hist_dict["mu_pfRelIso04_all"] = Hist.Hist(
-            iso_axis, Hist.storage.Weight()
+            syst_axis, iso_axis, Hist.storage.Weight()
             )
-            _hist_dict[f"muon_dxy"] = Hist.Hist(dxy_axis, Hist.storage.Weight())
-            _hist_dict[f"muon_dz"] = Hist.Hist(dz_axis, Hist.storage.Weight())
+            _hist_dict[f"muon_dxy"]   = Hist.Hist(syst_axis, dxy_axis, Hist.storage.Weight())
+            _hist_dict[f"muon_dz"]    = Hist.Hist(syst_axis, dz_axis, Hist.storage.Weight())
             _hist_dict[f"mu_ptratio"] = Hist.Hist(
-            flav_axis, osss_axis, ptratio_axis, Hist.storage.Weight()
+            syst_axis, flav_axis, osss_axis, ptratio_axis, Hist.storage.Weight()
         )
 
             _hist_dict[f"{i}_dz"] = Hist.Hist(syst_axis, dz_axis, Hist.storage.Weight())

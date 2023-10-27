@@ -294,14 +294,16 @@ class NanoProcessor(processor.ProcessorABC):
 
             # fill the histogram (check axis defintion in histogrammer and following the order)
 
+
             for histname, h in output.items():
-                print ("histname",histname)
+                print ("histname",histname, h)
                 if (
                     "Deep" in histname
                     and "btag" not in histname
                     and histname in events.Jet.fields
                 ):
                     h.fill(
+                        syst,
                         flatten(genflavor),
                         flatten(sjets[histname]),
                         weight=flatten(
@@ -314,6 +316,7 @@ class NanoProcessor(processor.ProcessorABC):
                     and histname.split("_")[1] in events.PFCands.fields
                 ):
                     h.fill(
+                        syst,
                         flatten(ak.broadcast_arrays(genflavor[:, 0], spfcands["pt"])[0]),
                         flatten(spfcands[histname.replace("PFCands_", "")]),
                         weight=flatten(
@@ -325,10 +328,11 @@ class NanoProcessor(processor.ProcessorABC):
                     for i in range(2):
                         print ("name", histname, i)
                         sel_jet = sjets[:, i]
-                        print("check this", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]))
+                        #print("check this", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]))
                         if str(i) in histname:
                             try:
                                 h.fill(
+                                syst,
                                 flatten(genflavor[:, i]),
                                 flatten(sel_jet[histname.replace(f"jet{i}_", "")]),
                                 weight=weight,
@@ -343,8 +347,8 @@ class NanoProcessor(processor.ProcessorABC):
                     and histname.replace("_0", "") in events.Jet.fields
                 ):
                     h.fill(
-                        flav=genflavor[:, 0],
                         syst="noSF",
+                        flav=genflavor[:, 0],
                         discr=np.where(
                             sel_jet[histname.replace("_0", "")] < 0,
                             -0.2,
@@ -354,7 +358,7 @@ class NanoProcessor(processor.ProcessorABC):
                     )
                     if (
                         not isRealData
-                        and self.isCorr
+                        #and self.isCorr
                         and "btag" in self.SF_map.keys()
                         and "_b" not in histname
                         and "_bb" not in histname
@@ -362,6 +366,7 @@ class NanoProcessor(processor.ProcessorABC):
                     ):
                         for syst in disc_list[histname.replace("_0", "")][0].keys():
                             h.fill(
+syst,
                                 flav=genflavor[:, 0],
                                 syst=syst,
                                 discr=np.where(
@@ -372,12 +377,8 @@ class NanoProcessor(processor.ProcessorABC):
                                 weight=weights.weight()
                                 * disc_list[histname.replace("_0", "")][0][syst],
                             )
-            output["njet"].fill(njet, weight=weights.weight())
-            output["dr_mumu"].fill(dr=snegmu.delta_r(sposmu), weight=weights.weight())
-            output["z_pt"].fill(flatten(sz.pt), weight=weights.weight())
-            output["z_eta"].fill(flatten(sz.eta), weight=weights.weight())
-            output["z_phi"].fill(flatten(sz.phi), weight=weights.weight())
-            output["z_mass"].fill(flatten(sz.mass), weight=weights.weight())
+            output["njet"].fill(syst,njet, weight=weights.weight())
+            
         #######################
         #  Create root files  #
         #######################
@@ -403,6 +404,7 @@ class NanoProcessor(processor.ProcessorABC):
 
             for i in range(2):
                 output[f"dr_mujet{i}"].fill(
+                    syst,
                     flav=flatten(genflavor[:, i]),
                     dr=flatten(smu.delta_r(sjets[:, i])),
                     weight=weights.weight(),
