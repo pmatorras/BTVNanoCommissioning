@@ -581,7 +581,7 @@ xsection = [
     },
     {
         "process_name": "DYto2L-2Jets_MLL-50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
-        "cross_section": "22635.1",
+        "cross_section": "6346.0",
         "total_uncertainty": "5.764",
         "other_uncertainty": "",
         "accuracy": "LO",
