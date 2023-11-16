@@ -1,6 +1,5 @@
 xsection = [
     {
-<<<<<<< HEAD
         "id": "61641f28294617432cff1379",
         "process_name": "QCD_Pt-30to50_EMEnriched_TuneCP5_13TeV_pythia8",
         "cross_section": "6447000.0",
@@ -585,7 +584,7 @@ xsection = [
         "cross_section": "6346.0",
         "total_uncertainty": "5.764",
         "other_uncertainty": "",
-        "accuracy": "LO",
+        "accuracy": "NLO",
         "contact": "Izaak Neutelings",
         "DAS": "/DYto2L-2Jets_MLL-50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/Run3Summer22NanoAODv11-126X_mcRun3_2022_realistic_v2-v1/NANOAODSIM",
         "equivalent_lumi": "",
@@ -597,6 +596,41 @@ xsection = [
         "energy": "13",
         "comments": "Computed using GenXSecAnalyzer.",
     },
+    {
+        "process_name": "DYto2L-2Jets_MLL-50_TuneCP5_13p6TeV_amcatnloFXFX-pythia84",
+        "cross_section": "6346.0",
+        "total_uncertainty": "5.764",
+        "other_uncertainty": "",
+        "accuracy": "NLO",
+        "contact": "Izaak Neutelings",
+        "DAS": "/DYto2L-2Jets_MLL-50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/Run3Summer22NanoAODv11-126X_mcRun3_2022_realistic_v2-v1/NANOAODSIM",
+        "equivalent_lumi": "",
+        "fraction_negative_weight": "",
+        "reweighting": "",
+        "cuts": "",
+        "kFactor": "",
+        "matrix_generator": "Madgraph",
+        "energy": "13",
+        "comments": "Computed using GenXSecAnalyzer.",
+    },
+
+    {
+        "process_name": "DYto2L-2Jets_MLL-10to50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8",
+        "cross_section": "19317.5",
+        "total_uncertainty": "5.764",
+        "other_uncertainty": "",
+        "accuracy": "NLO",
+        "DAS": "/DYto2L-2Jets_MLL-10to50_TuneCP5_13p6TeV_amcatnloFXFX-pythia8/Run3Summer22NanoAODv11-126X_mcRun3_2022_realistic_v2-v1/NANOAODSIM",
+        "equivalent_lumi": "",
+        "fraction_negative_weight": "",
+        "reweighting": "",
+        "cuts": "",
+        "kFactor": "",
+        "matrix_generator": "Madgraph",
+        "energy": "13",
+        "comments": "From SMP-22-017.",
+    },
+
     {
         "process_name": "DY1JetsToLL_M-10to50_MatchEWPDG20_TuneCP5_13TeV-madgraphMLM-pythia8",
         "cross_section": "566.8",
@@ -1185,8 +1219,6 @@ xsection = [
         "energy": "13",
     },
     {
-=======
->>>>>>> upstream/master
         "process_name": "DYJetsToLL_M-10to50_TuneCP5_13p6TeV-madgraphMLM-pythia8",
         "cross_section": "19317.5",
         "DAS": "/DYJetsToLL_M-10to50_TuneCP5_13p6TeV-madgraphMLM-pythia8/Run3Winter22NanoAOD-122X_mcRun3_2021_realistic_v9-v1/NANOAODSIM",
@@ -1225,6 +1257,27 @@ xsection = [
         "process_name": "TBbarQ_t-channel_4FS_TuneCP5_13p6TeV_powheg-madspin-pythia8",
         "cross_section": "145.0",
         "DAS": "/TBbarQ_t-channel_4FS_TuneCP5_13p6TeV_powheg-madspin-pythia8/Run3Winter22NanoAOD-122X_mcRun3_2021_realistic_v9-v1/NANOAODSIM",
+        "energy": "13.6",
+        "comment": "from TOP-22-012",
+    },
+    {
+        "process_name": "TBbarQ_t-channel_4FS_TuneCP5_13p6TeV_powheg-madspin-pythia84",
+        "cross_section": "145.0",
+        "DAS": "/TBbarQ_t-channel_4FS_TuneCP5_13p6TeV_powheg-madspin-pythia8/Run3Winter22NanoAOD-122X_mcRun3_2021_realistic_v9-v1/NANOAODSIM",
+        "energy": "13.6",
+        "comment": "from TOP-22-012",
+    },
+    {
+        "process_name": "TbarBQ_t-channel_4FS_TuneCP5_13p6TeV_powheg-madspin-pythia8",
+        "cross_section": "87.2",
+        "DAS": "/TbarBQ_t-channel_4FS_TuneCP5_13p6TeV_powheg-madspin-pythia8/Run3Winter22NanoAOD-122X_mcRun3_2021_realistic_v9-v1/NANOAODSIM",
+        "energy": "13.6",
+        "comment": "from TOP-22-012",
+    },
+    {
+        "process_name": "TbarBQ_t-channel_4FS_TuneCP5_13p6TeV_powheg-madspin-pythia84",
+        "cross_section": "87.2",
+        "DAS": "/TbarBQ_t-channel_4FS_TuneCP5_13p6TeV_powheg-madspin-pythia8/Run3Winter22NanoAOD-122X_mcRun3_2021_realistic_v9-v1/NANOAODSIM",
         "energy": "13.6",
         "comment": "from TOP-22-012",
     },
@@ -1305,6 +1358,28 @@ xsection = [
         "DAS": "/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/Run3Winter22NanoAOD-122X_mcRun3_2021_realistic_v9-v1/NANOAODSIM",
         "energy": "13.6",
         "comment": "from TOP-22-012",
+    },
+    {
+        "process_name": "TTto2L2Nu_TuneCP5_13p6TeV_powheg-pythia84",
+        "cross_section": "96.9",
+        "DAS": "/TTTo2L2Nu_CP5_13p6TeV_powheg-pythia8/Run3Winter22NanoAOD-122X_mcRun3_2021_realistic_v9-v1/NANOAODSIM",
+        "energy": "13.6",
+        "comment": "from TOP-22-012",
+    },
+    {
+        "process_name": "TTto4Q_TuneCP5_13p6TeV_powheg-pythia8",
+        "cross_section": "422.3",
+        "DAS": "/TTto4Q_TuneCP5_13p6TeV_powheg-pythia8/Run3Winter22NanoAOD-122X_mcRun3_2021_realistic_v9-v1/NANOAODSIM",
+        "energy": "13.6",
+        "comment": "NNLO ttbar theory xsec + PDG BR, wrong number in XSDB (762.1 pb, likely NLO and ignoring BR)",
+    },
+
+    {
+        "process_name": "TTto4Q_TuneCP5_13p6TeV_powheg-pythia84",
+        "cross_section": "422.3",
+        "DAS": "/TTto4Q_TuneCP5_13p6TeV_powheg-pythia8/Run3Winter22NanoAOD-122X_mcRun3_2021_realistic_v9-v1/NANOAODSIM",
+        "energy": "13.6",
+        "comment": "NNLO ttbar theory xsec + PDG BR, wrong number in XSDB (762.1 pb, likely NLO and ignoring BR)",
     },
     {
         "process_name": "TTTo2J1L1Nu_CP5_13p6TeV_powheg-pythia8",

@@ -221,6 +221,7 @@ class NanoProcessor(processor.ProcessorABC):
         ####################
         sjets = events.Jet[event_level]
         smu   = events.Muon[event_level]
+        smu   = smu[:, 0]
         njet  = ak.count(sjets.pt, axis=1)
         # Find the PFCands associate with selected jets. Search from jetindex->JetPFCands->PFCand
         if "PFCands" in events.fields:
@@ -296,7 +297,6 @@ class NanoProcessor(processor.ProcessorABC):
 
 
             for histname, h in output.items():
-                print ("histname",histname, h)
                 if (
                     "Deep" in histname
                     and "btag" not in histname
@@ -326,7 +326,6 @@ class NanoProcessor(processor.ProcessorABC):
 
                 elif "jet" in histname and "dr" not in histname and "njet" != histname:
                     for i in range(2):
-                        print ("name", histname, i)
                         sel_jet = sjets[:, i]
                         #print("check this", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]))
                         if str(i) in histname:

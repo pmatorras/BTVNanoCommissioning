@@ -250,7 +250,6 @@ def histogrammer(events, workflow):
 
     elif "QCDmuen" in workflow:
         obj_list = ["mu", "MET"]
-        _hist_dict["nmu"] = Hist.Hist(syst_axis, n_axis, Hist.storage.Weight())
         for i in range(2):
             obj_list.append(f"jet{i}")
             _hist_dict[f"dr_mujet{i}"] = Hist.Hist(

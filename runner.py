@@ -224,8 +224,6 @@ def get_main_parser():
 if __name__ == "__main__":
     parser = get_main_parser()
     args = parser.parse_args()
-<<<<<<< HEAD
-=======
     print("Running with the following options:")
     print(args)
     ogoutput = args.output
@@ -233,21 +231,17 @@ if __name__ == "__main__":
     coffeaoutput = f"{histoutdir}/{ogoutput}"
     outdir = histoutdir
     basename = ogoutput.replace(".coffea", "").replace("hists_", "")
->>>>>>> upstream/master
     if args.output == parser.get_default("output"):
         index = args.samplejson.rfind("/") + 1
         rocorrnm    ='_RC' if args.roCorr else ''
         sample_json = args.samplejson[index:]
-<<<<<<< HEAD
         args.output = f'hists_{args.workflow}_{(sample_json).rstrip(".json")}{rocorrnm}.coffea'
-=======
         histoutdir = f"hists_{args.workflow}_{sample_json.rstrip('.json')}"
         outdir = f"arrays_{args.workflow}_{sample_json.rstrip('.json')}"
         coffeaoutput = (
             f'{histoutdir}/hists_{args.workflow}_{(sample_json).rstrip(".json")}.coffea'
         )
     os.system(f"mkdir -p {histoutdir}")
->>>>>>> upstream/master
     # load dataset
     with open(args.samplejson) as f:
         sample_dict = json.load(f)

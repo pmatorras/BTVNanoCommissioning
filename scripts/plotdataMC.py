@@ -28,20 +28,6 @@ parser.add_argument(
     "-p",
     "--phase",
     required=True,
-    #choices=[
-    #    "ttdilep_sf",
-    #    "ttsemilep_sf",
-    #    "ctag_Wc_sf",
-    #    "ctag_DY_sf",
-    #    "ctag_ttsemilep_sf",
-    #    "ctag_ttdilep_sf",
-    #    "ectag_Wc_sf",
-    #    "ectag_DY_sf",
-    #    "ectag_ttsemilep_sf",
-    #    "ectag_ttdilep_sf",
-    #    "emctag_ttdilep_sf",
-    #    "QCDmuen"
-    #],
     choices=list(workflows.keys()),
     dest="phase",
     help="which phase space",
@@ -142,7 +128,6 @@ collated = collate(output, mergemap)
 for sample in mergemap.keys():
     if type(collated[sample]) is not dict:
         del collated[sample]
-
 ### input text settings
 if "Wc" in args.phase:
     input_txt = "W+c"
@@ -160,8 +145,6 @@ elif "semilep" in args.phase:
 elif "dilep" in args.phase:
     input_txt = r"t$\bar{t}$ dileptonic"
     nj = 2
-elif "QCDmuen" in arg.phase:
-    input_txt = r"QCD muon-enriched"
 if (
     "njet" in args.variable.split(",")
     or "nbjet" in args.variable.split(",")
@@ -210,14 +193,6 @@ elif "*" in args.variable:
 
 else:
     var_set = args.variable.split(",")
-<<<<<<< HEAD
-
-
-print("plots to do:",var_set)
-#exit()
-print(collated)
-=======
->>>>>>> upstream/master
 for index, discr in enumerate(var_set):
     ## remove empty
     if (
@@ -609,7 +584,6 @@ for index, discr in enumerate(var_set):
     if args.norm:
         scale = "_norm"
     name = "all"
-    rcnm = '_RC' if '_RC' in arg.input else ''
     hep.mpl_magic(ax=ax)
     if args.log:
         print(
@@ -637,7 +611,3 @@ for index, discr in enumerate(var_set):
         fig.savefig(
             f"plot/BTV/{args.phase}_{args.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png"
         )
-    filenm = f"plot/BTV/{arg.phase}_{arg.ext}_{time}/unc_{discr}_inclusive{scale}_{name}{rcnm}"
-    print("creating:", filenm + ".png")
-    fig.savefig(filenm + ".pdf")
-    fig.savefig(filenm + ".png")
