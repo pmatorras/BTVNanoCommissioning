@@ -167,6 +167,7 @@ if args.variable == "all":
         for var in collated["mc"].keys()
         if var not in ["fname", "run", "lumi", "sumw"]
     ]
+    print("var_set", var_set)
 elif "*" in args.variable:
     if args.variable.count("*") > 1:
         var_set = [
