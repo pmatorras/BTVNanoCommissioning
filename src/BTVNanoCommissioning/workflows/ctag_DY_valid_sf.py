@@ -381,11 +381,18 @@ class NanoProcessor(processor.ProcessorABC):
                         weight=weight,
                     )
 
-                elif "jet_" in histname:
+                elif "jet0_" in histname:
                     h.fill(
                         syst,
                         genflavor,
-                        sel_jet[histname.replace("jet_", "")],
+                        sel_jet[histname.replace("jet0_", "")],
+                        weight=weight,
+                    )
+                elif "jet1_" in histname:
+                    h.fill(
+                        syst,
+                        genflavor,
+                        sel_jet[histname.replace("jet1_", "")],
                         weight=weight,
                     )
                 elif (
