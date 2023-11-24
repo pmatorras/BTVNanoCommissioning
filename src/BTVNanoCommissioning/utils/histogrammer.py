@@ -231,7 +231,7 @@ def histogrammer(events, workflow):
                 syst_axis, flav_axis, osss_axis, ptratio_axis, Hist.storage.Weight()
             )
     elif "DY_sf" in workflow:
-        obj_list = ["posl", "negl", "z", "MET"]
+        obj_list = ["posl", "negl", "z", "MET", "jet0", "jet1"]
         _hist_dict["z_mass"] = Hist.Hist(
             syst_axis,
             Hist.axis.Regular(50, 50, 100, name="mass", label="$m_{\\ell\\ell}$ [GeV]"),
@@ -247,11 +247,32 @@ def histogrammer(events, workflow):
             )
             _hist_dict[f"{i}_dz"] = Hist.Hist(
                 syst_axis, dz_axis, Hist.storage.Weight())
-        for i in range(2):
-            obj_list.append(f"jet{i}")
-            _hist_dict[f"dr_mujet{i}"] = Hist.Hist(
-                syst_axis, flav_axis, dr_axis, Hist.storage.Weight()
-            )
+        for obj in obj_list:
+            if "jet" in obj or "soft_l" in obj:
+                if obj == "soft_l":
+                    _hist_dict["soft_l_pt"] = Hist.Hist(
+                        syst_axis, flav_axis, softlpt_axis, Hist.storage.Weight()
+                    )
+                else:
+                    _hist_dict[f"{obj}_pt"] = Hist.Hist(
+                        syst_axis, flav_axis, jpt_axis, Hist.storage.Weight()
+                    )
+                _hist_dict[f"{obj}_eta"] = Hist.Hist(
+                    syst_axis, flav_axis, eta_axis, Hist.storage.Weight()
+                )
+                _hist_dict[f"{obj}_phi"] = Hist.Hist(
+                    syst_axis, flav_axis, phi_axis, Hist.storage.Weight()
+                )
+                _hist_dict[f"{obj}_mass"] = Hist.Hist(
+                    syst_axis, flav_axis, mass_axis, Hist.storage.Weight()
+                )
+            else:
+                _hist_dict[f"{obj}_pt"] = Hist.Hist(
+                    syst_axis, pt_axis, Hist.storage.Weight()
+                )
+                _hist_dict[f"{obj}_phi"] = Hist.Hist(
+                    syst_axis, phi_axis, Hist.storage.Weight()
+                )
     elif "QCDmuen" in workflow:
         obj_list = ["mu", "MET"]
         for i in range(2):
