@@ -401,12 +401,6 @@ def histogrammer(events, workflow):
             )
     ### discriminators
     disc_list = [
-        "btagDeepB",
-        "btagDeepC",
-        "btagDeepB_b",
-        "btagDeepB_bb",
-        "btagDeepCvL",
-        "btagDeepCvB",
         "btagDeepFlavB",
         "btagDeepFlavC",
         "btagTransDeepFlavB",
