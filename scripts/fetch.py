@@ -299,6 +299,7 @@ def remove_bad_files(sample_dict, outname, remove_bad=True):
         )
 
         _results = list(_rmap)
+        continue
         counts = np.sum([r for r in _results if np.isreal(r) and isinstance(r, int)])
         all_invalid += [r for r in _results if isinstance(r, str)]
         if len(all_invalid) > 0:
