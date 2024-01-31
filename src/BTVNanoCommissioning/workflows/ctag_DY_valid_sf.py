@@ -48,6 +48,7 @@ class NanoProcessor(processor.ProcessorABC):
         self.chunksize = chunksize
         ## Load corrections
         self.SF_map = load_SF(self._campaign)
+        print("SF_MAP", self.SF_map, "\n Campaign", self._campaign)
         '''
         if isCorr:
             if "BTV" in correction_config[self._campaign].keys():

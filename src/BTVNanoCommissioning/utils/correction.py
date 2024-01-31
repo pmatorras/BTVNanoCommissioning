@@ -412,6 +412,7 @@ def jetveto(events):
 # FIXME: would be nicer if we can move to correctionlib in the future together with factory and workable
 def load_jmefactory(campaign):
     _jet_path = f"BTVNanoCommissioning.data.JME.{campaign}"
+    print("jetpath", _jet_path,"\n Config", config[campaign]["JME"])
     with importlib.resources.path(_jet_path, config[campaign]["JME"]) as filename:
         with gzip.open(filename) as fin:
             jmestuff = cloudpickle.load(fin)
@@ -461,6 +462,8 @@ def JME_shifts(
         jecname = "data" + jecname
     else:
         jecname = "mc"
+    print("jecname", jecname)
+    print("keys", correct_map["JME"]["jet_factory"].keys())
     jets = correct_map["JME"]["jet_factory"][jecname].build(
         add_jec_variables(events.Jet, events.fixedGridRhoFastjetAll),
         lazy_cache=events.caches[0],
