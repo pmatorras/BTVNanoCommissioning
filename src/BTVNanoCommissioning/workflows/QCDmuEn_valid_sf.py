@@ -176,21 +176,24 @@ class NanoProcessor(processor.ProcessorABC):
         #    print("Applying rochester corrections")
         #    events.Muon = applyRC(self,events)
         ## Muon cuts
-        muo = events.Muon[(events.Muon.pt > 5) & (abs(events.Muon.eta)<2.5) & mu_idiso(events, self._campaign)]
-        req_muon= ak.num(muo.pt)==1
-        
+
+        iso_muon = events.Muon[(events.Muon.pt > 5) & mu_idiso(events, self._campaign)]
+        iso_muon = ak.pad_none(iso_muon, 1)
+        req_muon = (ak.count(iso_muon.pt, axis=1) == 1) & (iso_muon[:, 0].pt > 5) & (iso_muon[:, 0].eta < 2.4)
         ## Jet cuts
-        events.Jet[
-           (events.Jet.pt>50)
+        '''
+        event_jet = events.Jet[
+            (events.Jet.pt>10)
             & jet_id(events, self._campaign)
             & ak.all(
-                events.Jet.metric_table(muo) <= 0.4, axis=2, mask_identity=True
+                events.Jet.metric_table(iso_muon) <= 0.4, axis=2, mask_identity=True
             )
             & ((events.Jet.muonIdx1 != -1) | (events.Jet.muonIdx2 != -1))
         ]        
-        req_jets  = ak.num(events.Jet.pt) >= 2
-        events.Jet = ak.pad_none(events.Jet, 1, axis=1)
-
+        req_jets  = ak.num(event_jet.pt) >= 2
+        '''
+        events.Jet = events.Jet[(events.Jet.pt>50) & (jet_id(events, self._campaign))]
+        req_jets = ak.count(events.Jet.pt, axis=1) >= 2
         ## store jet index for PFCands, create mask on the jet index
         jetindx = ak.mask(
             ak.local_index(events.Jet.pt),
@@ -198,7 +201,7 @@ class NanoProcessor(processor.ProcessorABC):
                 jet_id(events, self._campaign)
                 & (
                     ak.all(
-                        events.Jet.metric_table(muo) <= 0.4,
+                        events.Jet.metric_table(iso_muon) <= 0.4,
                         axis=2,
                         mask_identity=True,
                     )
@@ -211,17 +214,30 @@ class NanoProcessor(processor.ProcessorABC):
         jetindx = ak.pad_none(jetindx, 1)
         jetindx = jetindx[:, 0]
 
-        event_level = ak.fill_none(
-            req_muon & req_lumi & req_trig & req_jets, False
+        event_level = (
+            req_muon &
+            req_lumi &
+            req_trig &
+            req_jets
         )
+        print("im here")
+        event_level = ak.fill_none(event_level, False)
         if len(events[event_level]) == 0:
+            print("return empty handed")
             return {dataset: output}
+
         ####################
         # Selected objects #
         ####################
+        #sjets = event_jet[event_level]
         sjets = events.Jet[event_level]
-        smu   = events.Muon[event_level]
+        sjets = sjets[:, :2]
+        sjet0 = sjets[:, 0]
+        smu   = iso_muon[event_level]#events.Muon[event_level]
         smu   = smu[:, 0]
+        #print ("smu->\n", events.Muon[event_level].pt,"and",  events.Muon[event_level].eta, "are pt and eta")
+        #print ("smu->\n", smu.pt,"and",  smu.eta, "are pt and eta")
+        #print ("sjets->\n", sjets.pt,"and",  sjets.eta, "are pt and eta")
         njet  = ak.count(sjets.pt, axis=1)
         # Find the PFCands associate with selected jets. Search from jetindex->JetPFCands->PFCand
         if "PFCands" in events.fields:
@@ -232,7 +248,6 @@ class NanoProcessor(processor.ProcessorABC):
                 ]
                 .pFCandsIdx
             ]
-        sel_jet = sjets[:, 0]
         ####################
         # Weight & Geninfo #
         ####################
@@ -255,9 +270,7 @@ class NanoProcessor(processor.ProcessorABC):
                         syst_wei,
                     )
                 if "MUO" in self.SF_map.keys():
-                    muSFs(
-                        smu, self.SF_map, weights, syst_wei, False
-                    )  # input selected muon
+                    muSFs(smu, self.SF_map, weights, syst_wei, False)  # input selected muon
                 if "BTV" in self.SF_map.keys():
                     # For BTV weight, you need to specify type
                     btagSFs(sjets, self.SF_map, weights, "DeepJetC", syst_wei)
@@ -326,18 +339,18 @@ class NanoProcessor(processor.ProcessorABC):
 
                 elif "jet" in histname and "dr" not in histname and "njet" != histname:
                     for i in range(2):
-                        sel_jet = sjets[:, i]
-                        #print("check this", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]))
+                        sjeti = sjets[:, i]
+                        #print("check this", str(i), histname, len(genflavor[:, i]), len(sjeti[histname.replace(f"jet{i}_", "")]))
                         if str(i) in histname:
                             try:
                                 h.fill(
                                 syst,
                                 flatten(genflavor[:, i]),
-                                flatten(sel_jet[histname.replace(f"jet{i}_", "")]),
+                                flatten(sjeti[histname.replace(f"jet{i}_", "")]),
                                 weight=weight,
                                                 )
                             except ValueError as ve:
-                                print("There is a value error here:", str(i), histname, len(genflavor[:, i]), len(sel_jet[histname.replace(f"jet{i}_", "")]), len(weights.weight()), ve)
+                                print("There is a value error here:", str(i), histname, len(genflavor[:, i]), len(sjeti[histname.replace(f"jet{i}_", "")]), len(weights.weight()), ve)
 
                                 #exit()
                 elif (
@@ -349,9 +362,9 @@ class NanoProcessor(processor.ProcessorABC):
                         syst="noSF",
                         flav=genflavor[:, 0],
                         discr=np.where(
-                            sel_jet[histname.replace("_0", "")] < 0,
+                            sjet0[histname.replace("_0", "")] < 0,
                             -0.2,
-                            sel_jet[histname.replace("_0", "")],
+                            sjet0[histname.replace("_0", "")],
                         ),
                         weight=weights.weight(),
                     )
@@ -369,9 +382,9 @@ syst,
                                 flav=genflavor[:, 0],
                                 syst=syst,
                                 discr=np.where(
-                                    sel_jet[histname.replace("_0", "")] < 0,
+                                    sjet0[histname.replace("_0", "")] < 0,
                                     -0.2,
-                                    sel_jet[histname.replace("_0", "")],
+                                    sjet0[histname.replace("_0", "")],
                                 ),
                                 weight=weights.weight()
                                 * disc_list[histname.replace("_0", "")][0][syst],
@@ -384,7 +397,7 @@ syst,
         if self.isArray:
             # Keep the structure of events and pruned the object size
             pruned_ev = events[event_level]
-            pruned_ev.Jet = sel_jet
+            pruned_ev.Jet = sjet0
             pruned_ev.Muon = smu
             pruned_ev["dilep"] = sposmu + snegmu
             pruned_ev["dilep", "pt"] = pruned_ev.dilep.pt
