@@ -139,6 +139,8 @@ if "Wc" in args.phase:
         input_txt = input_txt + " OS-SS"
 elif "DY" in args.phase:
     input_txt = "DY+jets"
+elif "QCDmuen" in args.phase:
+    input_txt = "QCD$\mu$-enriched"
 elif "semilep" in args.phase:
     input_txt = r"t$\bar{t}$ semileptonic"
     nj = 4
@@ -203,6 +205,9 @@ for index, discr in enumerate(var_set):
         or (collated["data"][discr].values() == 0).all()
     ):
         print(discr, "not in file or empty")
+        print("list of variables:\nMC:\n", collated["mc"].keys())
+        print(                  "Data:\n", collated["data"].keys())
+        print(bool(discr not in collated["mc"].keys()), bool(discr not in collated["data"].keys()), bool((collated["mc"][discr].values() == 0).all()), bool((collated["data"][discr].values() == 0).all()))
         continue
 
     ## axis info
