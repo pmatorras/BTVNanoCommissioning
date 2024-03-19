@@ -1,5 +1,5 @@
 import collections, numpy as np, awkward as ak
-
+import correctionlib
 from coffea import processor
 from coffea.analysis_tools import Weights
 
@@ -248,13 +248,14 @@ class NanoProcessor(processor.ProcessorABC):
                 ]
                 .pFCandsIdx
             ]
+        selev = events[event_level]
         ####################
         # Weight & Geninfo #
         ####################
         # create Weights object to save individual weights
-        weights = Weights(len(events[event_level]), storeIndividual=True)
+        weights = Weights(len(selev), storeIndividual=True)
         if not isRealData:
-            weights.add("genweight", events[event_level].genWeight)
+            weights.add("genweight", selev.genWeight)
             par_flav = (sjets.partonFlavour == 0) & (sjets.hadronFlavour == 0)
             genflavor = sjets.hadronFlavour + 1 * par_flav
             # Load SFs
@@ -278,7 +279,27 @@ class NanoProcessor(processor.ProcessorABC):
                     btagSFs(sjets, self.SF_map, weights, "DeepCSVB", syst_wei)
                     btagSFs(sjets, self.SF_map, weights, "DeepCSVC", syst_wei)
         else:
-            genflavor = ak.zeros_like(sjets.pt)
+            #genflavor = ak.zeros_like(sjets.pt)
+            genflavor = ak.zeros_like(sjets.pt,dtype=int)
+
+        
+        if isRealData:
+            print("This year is", self._year, bool(self._year =='2022'), type(self._year))
+            if  self._year == '2022':
+                print("i am here i imagine?")
+                run_num = "355374_362760"
+            elif self._year == '2023':
+                run_num = "366727_370790"
+            filenm = f"src/BTVNanoCommissioning/data/Prescales/ps_weight_{triggers[0]}_run{run_num}.json"
+            print("filenm:", filenm)
+            pseval = correctionlib.CorrectionSet.from_file(filenm)
+            psweight = pseval["prescaleWeight"].evaluate(
+                selev.run,
+                f"HLT_{triggers[0]}",
+                ak.values_astype(selev.luminosityBlock, np.float32),
+            )
+            print("weight", psweight)
+            weights.add("psweight", psweight)
 
         # Systematics information (add name of systematics)
         if shift_name is None:  # weight variations
