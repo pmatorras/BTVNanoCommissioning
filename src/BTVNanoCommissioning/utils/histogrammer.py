@@ -280,16 +280,15 @@ def histogrammer(events, workflow):
             _hist_dict[f"dr_mujet{i}"] = Hist.Hist(
             syst_axis, flav_axis, dr_axis, Hist.storage.Weight()
             )
-            _hist_dict["mu_pfRelIso04_all"] = Hist.Hist(
-            syst_axis, iso_axis, Hist.storage.Weight()
-            )
-            _hist_dict[f"muon_dxy"]   = Hist.Hist(syst_axis, dxy_axis, Hist.storage.Weight())
-            _hist_dict[f"muon_dz"]    = Hist.Hist(syst_axis, dz_axis, Hist.storage.Weight())
-            _hist_dict[f"mu_ptratio"] = Hist.Hist(
-            syst_axis, flav_axis, osss_axis, ptratio_axis, Hist.storage.Weight()
+        _hist_dict["mu_pfRelIso04_all"] = Hist.Hist(
+        syst_axis, iso_axis, Hist.storage.Weight()
+        )
+        _hist_dict[f"mu_dxy"]   = Hist.Hist(syst_axis, dxy_axis, Hist.storage.Weight())
+        _hist_dict[f"mu_dz"]    = Hist.Hist(syst_axis, dz_axis, Hist.storage.Weight())
+        _hist_dict[f"mu_ptratio"] = Hist.Hist(
+        syst_axis, flav_axis, osss_axis, ptratio_axis, Hist.storage.Weight()
         )
 
-            _hist_dict[f"{i}_dz"] = Hist.Hist(syst_axis, dz_axis, Hist.storage.Weight())
 
     ### Common kinematic variables histogram creation
     if "Wc_sf" not in workflow:

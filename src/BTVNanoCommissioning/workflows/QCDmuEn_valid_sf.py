@@ -20,20 +20,10 @@ from BTVNanoCommissioning.helpers.func import flatten, update
 from BTVNanoCommissioning.helpers.func import flatten
 from BTVNanoCommissioning.helpers.update_branch import missing_branch, add_jec
 from BTVNanoCommissioning.utils.histogrammer import histogrammer
-from BTVNanoCommissioning.utils.selection import jet_id, mu_idiso, ele_mvatightid
+from BTVNanoCommissioning.utils.selection import jet_id, btag_mu_idiso,mu_idiso, ele_mvatightid
 import sys
 
 class NanoProcessor(processor.ProcessorABC):
-    '''
-    def __init__(self, year="2017", campaign="Rereco17_94X", isCorr=True, isJERC=False, roCorr=False, isSyst=False):
-        self._year = year
-        self._campaign = campaign
-        self.isJERC = isJERC
-        self.isCorr = isCorr
-        self.roCorr = roCorr
-        print(campaign, correction_config[campaign])
-        self.lumiMask = load_lumi(self._campaign)#correction_config[self._campaign]["lumiMask"])
-    '''
     def __init__(
         self,
         year="2022",
@@ -54,32 +44,6 @@ class NanoProcessor(processor.ProcessorABC):
         self.chunksize = chunksize
         ## Load corrections
         self.SF_map = load_SF(self._campaign)
-        '''
-        if isCorr:
-            if "BTV" in correction_config[self._campaign].keys():
-                self._deepjetc_sf = load_BTV(
-                    self._campaign, correction_config[self._campaign]["BTV"], "DeepJetC"
-                )
-                self._deepjetb_sf = load_BTV(
-                    self._campaign, correction_config[self._campaign]["BTV"], "DeepJetB"
-                )
-                self._deepcsvc_sf = load_BTV(
-                    self._campaign, correction_config[self._campaign]["BTV"], "DeepCSVC"
-                )
-                self._deepcsvb_sf = load_BTV(
-                    self._campaign, correction_config[self._campaign]["BTV"], "DeepCSVB"
-                )
-            if "PU" in correction_config[self._campaign].keys():
-                self._pu = load_pu(
-                    self._campaign, correction_config[self._campaign]["PU"]
-                )
-        '''
-        roCorr =False
-        if roCorr:
-            print("im doing rocorr")
-            rcFilename = getRCFile(self,'2022')
-            print(rcFilename)
-            #sys.exit()
         self.isSyst = isSyst
         self.lumiMask = load_lumi(self._campaign)
 
@@ -138,6 +102,7 @@ class NanoProcessor(processor.ProcessorABC):
             {"": None} if self.noHist else histogrammer(events, "QCDmuen")
         )
 
+        
         output = {
             "sumw": processor.defaultdict_accumulator(float),
             **_hist_event_dict,
@@ -171,27 +136,12 @@ class NanoProcessor(processor.ProcessorABC):
         for t in trig_arrs:
             req_trig = req_trig | t
 
-        
-        #if self.roCorr:
-        #    print("Applying rochester corrections")
-        #    events.Muon = applyRC(self,events)
         ## Muon cuts
 
-        iso_muon = events.Muon[(events.Muon.pt > 5) & mu_idiso(events, self._campaign)]
+        iso_muon = events.Muon[(events.Muon.pt > 5) & btag_mu_idiso(events, self._campaign)]
         iso_muon = ak.pad_none(iso_muon, 1)
         req_muon = (ak.count(iso_muon.pt, axis=1) == 1) & (iso_muon[:, 0].pt > 5) & (iso_muon[:, 0].eta < 2.4)
         ## Jet cuts
-        '''
-        event_jet = events.Jet[
-            (events.Jet.pt>10)
-            & jet_id(events, self._campaign)
-            & ak.all(
-                events.Jet.metric_table(iso_muon) <= 0.4, axis=2, mask_identity=True
-            )
-            & ((events.Jet.muonIdx1 != -1) | (events.Jet.muonIdx2 != -1))
-        ]        
-        req_jets  = ak.num(event_jet.pt) >= 2
-        '''
         events.Jet = events.Jet[(events.Jet.pt>50) & (jet_id(events, self._campaign))]
         req_jets = ak.count(events.Jet.pt, axis=1) >= 2
         ## store jet index for PFCands, create mask on the jet index
@@ -214,16 +164,37 @@ class NanoProcessor(processor.ProcessorABC):
         jetindx = ak.pad_none(jetindx, 1)
         jetindx = jetindx[:, 0]
 
+        if "Run3" not in self._campaign:
+            MET = ak.zip(
+                {
+                    "pt": events.MET.pt,
+                    "eta": ak.zeros_like(events.MET.pt),
+                    "phi": events.MET.phi,
+                    "mass": ak.zeros_like(events.MET.pt),
+                },
+                with_name="PtEtaPhiMLorentzVector",
+            )
+        else:
+            MET = ak.zip(
+                {
+                    "pt": events.PuppiMET.pt,
+                    "eta": ak.zeros_like(events.PuppiMET.pt),
+                    "phi": events.PuppiMET.phi,
+                    "mass": ak.zeros_like(events.PuppiMET.pt),
+                },
+                with_name="PtEtaPhiMLorentzVector",
+            )
+
+        
         event_level = (
             req_muon &
             req_lumi &
             req_trig &
             req_jets
         )
-        print("im here")
         event_level = ak.fill_none(event_level, False)
         if len(events[event_level]) == 0:
-            print("return empty handed")
+            print("No events inside events[event_level]")
             return {dataset: output}
 
         ####################
@@ -235,6 +206,7 @@ class NanoProcessor(processor.ProcessorABC):
         sjet0 = sjets[:, 0]
         smu   = iso_muon[event_level]#events.Muon[event_level]
         smu   = smu[:, 0]
+        smet  = MET[event_level]
         #print ("smu->\n", events.Muon[event_level].pt,"and",  events.Muon[event_level].eta, "are pt and eta")
         #print ("smu->\n", smu.pt,"and",  smu.eta, "are pt and eta")
         #print ("sjets->\n", sjets.pt,"and",  sjets.eta, "are pt and eta")
@@ -284,21 +256,20 @@ class NanoProcessor(processor.ProcessorABC):
 
         
         if isRealData:
-            print("This year is", self._year, bool(self._year =='2022'), type(self._year))
+            #print("This year is", self._year, bool(self._year =='2022'), type(self._year))
             if  self._year == '2022':
-                print("i am here i imagine?")
                 run_num = "355374_362760"
             elif self._year == '2023':
                 run_num = "366727_370790"
             filenm = f"src/BTVNanoCommissioning/data/Prescales/ps_weight_{triggers[0]}_run{run_num}.json"
-            print("filenm:", filenm)
+            #print("filenm:", filenm)
             pseval = correctionlib.CorrectionSet.from_file(filenm)
             psweight = pseval["prescaleWeight"].evaluate(
                 selev.run,
                 f"HLT_{triggers[0]}",
                 ak.values_astype(selev.luminosityBlock, np.float32),
             )
-            print("weight", psweight)
+            #print("weight", psweight)
             weights.add("psweight", psweight)
 
         # Systematics information (add name of systematics)
@@ -358,6 +329,13 @@ class NanoProcessor(processor.ProcessorABC):
                         ),
                     )
 
+                elif "mu_" in histname and histname.replace("mu_", "") in smu.fields:
+                    h.fill(
+                        syst,
+                        flatten(smu[histname.replace("mu_", "")]),
+                        weight=weight,
+                    )
+                    
                 elif "jet" in histname and "dr" not in histname and "njet" != histname:
                     for i in range(2):
                         sjeti = sjets[:, i]
@@ -411,7 +389,8 @@ syst,
                                 * disc_list[histname.replace("_0", "")][0][syst],
                             )
             output["njet"].fill(syst,njet, weight=weights.weight())
-            
+            output["MET_pt"].fill(syst, flatten(smet.pt), weight=weight)
+            output["MET_phi"].fill(syst, flatten(smet.phi), weight=weight)
         #######################
         #  Create root files  #
         #######################
@@ -451,7 +430,6 @@ syst,
                 out_branch,
                 np.where((out_branch == "dilep")),
             )
-
             for kin in ["pt", "eta", "phi", "mass", "pfRelIso04_all", "dxy", "dz"]:
                 for obj in ["Muon", "Jet", "dilep"]:
                     if (obj != "Muon") and ("pfRelIso04_all" == kin or "d" in kin):

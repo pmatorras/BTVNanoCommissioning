@@ -1846,6 +1846,16 @@ xsection = [
         "fraction_negative_weight": "0.0",
     },
     {
+        "process_name": "QCD_PT-120to170_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8", #Same as before but PT capitalised and to uncapitalised, to agree with metadata
+        "cross_section": "22980.0",
+        "total_uncertainty": "215.1",
+        "accuracy": "unknown",
+        "DAS": "/QCD_Pt-120To170_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8/Run3Summer22MiniAODv3-124X_mcRun3_2022_realistic_v12-v1/MINIAODSIM",
+        "equivalent_lumi": "0.04352",
+        "fraction_negative_weight": "0.0",
+    },
+
+    {
         "DAS": "/QCD_PT-170to300_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8/Run3Summer22MiniAODv3-124X_mcRun3_2022_realistic_v12-v1/MINIAODSIM",
         "comments": "Automatically computed",
         "process_name": "QCD_PT-170to300_MuEnrichedPt5_TuneCP5_13p6TeV_pythia8",
