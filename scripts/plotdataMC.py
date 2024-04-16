@@ -207,7 +207,7 @@ for index, discr in enumerate(var_set):
         print(discr, "not in file or empty")
         print("list of variables:\nMC:\n", collated["mc"].keys())
         print(                  "Data:\n", collated["data"].keys())
-        print(bool(discr not in collated["mc"].keys()), bool(discr not in collated["data"].keys()), bool((collated["mc"][discr].values() == 0).all()), bool((collated["data"][discr].values() == 0).all()))
+        print("variable exists in mc?", bool(discr in collated["mc"].keys()),"data?", bool(discr in collated["data"].keys()), "empty mc?", bool((collated["mc"][discr].values() == 0).all()), "empty data?", bool((collated["data"][discr].values() == 0).all()))
         continue
 
     ## axis info
@@ -592,14 +592,15 @@ for index, discr in enumerate(var_set):
     name = "all"
     hep.mpl_magic(ax=ax)
     if args.log:
-        print(
-            "creating:",
-            f"plot/BTV/{args.phase}_{args.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png",
-        )
         ax.set_yscale("log")
         name = "log"
         ax.set_ylim(bottom=0.1)
         hep.mpl_magic(ax=ax)
+        print(
+            "creating:",
+            f"plot/BTV/{args.phase}_{args.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.png",
+        )
+
         fig.savefig(
             f"plot/BTV/{args.phase}_{args.ext}_{time}/unc_{discr}_inclusive{scale}_{name}.pdf"
         )
