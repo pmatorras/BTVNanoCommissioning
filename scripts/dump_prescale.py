@@ -65,12 +65,16 @@ def build_lumibins(ps, verbose=False):
     ##### to sort as bin edges properly, starting lumi sections need to be stored as floats
     if verbose:
         print("Path: ", ps["hltpath/prescval"], ps["totprescval"])
+<<<<<<< HEAD
     try:
         edges = sorted(set(ps["cmsls"].astype(float)))
         print("edges", edges)
     except ValueError:
         print("edges empty")
         edges = [1.0]
+=======
+    edges = sorted(set(ps["cmsls"].astype(float)))
+>>>>>>> upstream/master
     if len(edges) == 1:
         return get_ps(ps)
     elif len(edges) > 1:

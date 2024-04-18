@@ -12,7 +12,7 @@ parser.add_argument('--test', '-t', action="store_true", help='test behaviour')
 args = parser.parse_args()
 
 # Read the jobnum_list.txt and get all the job numbers
-jobFolder        = 'jobs_'+args.jobName +'/'
+jobFolder        = args.jobName +'/' if 'jobs_' in args.jobName else 'jobs_'+args.jobName +'/'
 jobnum_list_file = jobFolder +'jobnum_list.txt'
 if not os.path.isfile(jobnum_list_file):
     print(f"The jobnum_list.txt file does not exist at the provided path: {jobnum_list_file}")

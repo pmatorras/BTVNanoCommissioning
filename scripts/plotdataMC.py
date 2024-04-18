@@ -9,7 +9,11 @@ import hist
 plt.style.use(hep.style.ROOT)
 from BTVNanoCommissioning.workflows import workflows
 from BTVNanoCommissioning.helpers.xs_scaler import collate, scaleSumW
-from BTVNanoCommissioning.helpers.definitions import definitions, axes_name
+from BTVNanoCommissioning.helpers.definitions import (
+    definitions,
+    axes_name,
+    SV_definitions,
+)
 from BTVNanoCommissioning.utils.plot_utils import (
     plotratio,
     SFerror,
@@ -21,6 +25,7 @@ from BTVNanoCommissioning.utils.plot_utils import (
 )
 
 bininfo = definitions()
+SV_bininfo = SV_definitions()
 parser = argparse.ArgumentParser(description="hist plotter for commissioning")
 parser.add_argument("--lumi", required=True, type=float, help="luminosity in /pb")
 parser.add_argument("--com", default="13.6", type=str, help="sqrt(s) in TeV")
@@ -75,8 +80,8 @@ parser.add_argument(
 parser.add_argument(
     "--flow",
     type=str,
-    default="show",
-    help="str, optional {None, 'show', 'sum'} Whether plot the under/overflow bin. If 'show', add additional under/overflow bin. If 'sum', add the under/overflow bin content to first/last bin.",
+    default="none",
+    help="str, optional {'none', 'show', 'sum'} Whether plot the under/overflow bin. If 'show', add additional under/overflow bin. If 'sum', add the under/overflow bin content to first/last bin.",
 )
 parser.add_argument(
     "--split",
@@ -124,10 +129,6 @@ else:
     mergemap["data"] = datalist
 
 collated = collate(output, mergemap)
-
-for sample in mergemap.keys():
-    if type(collated[sample]) is not dict:
-        del collated[sample]
 ### input text settings
 if "Wc" in args.phase:
     input_txt = "W+c"
@@ -157,6 +158,8 @@ if "emctag" in args.phase:
     input_txt = input_txt + " (e$\mu$)"
 elif "ectag" in args.phase:
     input_txt = input_txt + " (e)"
+elif "QCD" == args.phase:
+    input_txt = input_txt + ""
 elif "ttdilep_sf" == args.phase:
     input_txt = input_txt + " (e$\mu$)"
 else:
@@ -164,12 +167,16 @@ else:
 if "ctag" in args.phase and "DY" not in args.phase:
     input_txt = input_txt + "\nw/ soft-$\mu$"
 if args.variable == "all":
+<<<<<<< HEAD
     var_set = [
         var
         for var in collated["mc"].keys()
         if var not in ["fname", "run", "lumi", "sumw"]
     ]
     print("var_set", var_set)
+=======
+    var_set = [var for var in collated["mc"].keys()]
+>>>>>>> upstream/master
 elif "*" in args.variable:
     if args.variable.count("*") > 1:
         var_set = [
@@ -197,6 +204,8 @@ elif "*" in args.variable:
 else:
     var_set = args.variable.split(",")
 for index, discr in enumerate(var_set):
+    if not isinstance(collated["mc"][discr], hist.hist.Hist):
+        continue
     ## remove empty
     if (
         discr not in collated["mc"].keys()
@@ -565,9 +574,18 @@ for index, discr in enumerate(var_set):
             and (bininfo[discr]["inputVar_units"] == "")
             else bininfo[discr]["displayname"]
         )
+    elif "JetSVs_" in discr:
+        xlabel = (
+            SV_bininfo[discr]["displayname"]
+            + " ["
+            + SV_bininfo[discr]["inputVar_units"]
+            + "]"
+            if (SV_bininfo[discr]["inputVar_units"] is not None)
+            and (SV_bininfo[discr]["inputVar_units"] == "")
+            else SV_bininfo[discr]["displayname"]
+        )
     else:
         xlabel = axes_name(discr)
-
     rax.set_xlabel(xlabel)
     if "sample" in args.split:
         ax.legend(ncols=2, prop={"size": 16})
@@ -590,6 +608,8 @@ for index, discr in enumerate(var_set):
     if args.norm:
         scale = "_norm"
     name = "all"
+    if args.split == "sample":
+        name = name + "_sample"
     hep.mpl_magic(ax=ax)
     if args.log:
         ax.set_yscale("log")
